@@ -1,0 +1,26 @@
+# 密钥与环境
+.env
+.env.*
+*.key
+*.pem
+FACTS.md
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+tts_cache/
+
+# Node
+node_modules/
+dist/
+
+# 构建产物
+build/
+out/
+
+# 本地数据
+*.log
+.DS_Store
+Thumbs.db

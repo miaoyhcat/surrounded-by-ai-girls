@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#0E2B5E"/>
+      <stop offset="55%" stop-color="#0A1F45"/>
+      <stop offset="100%" stop-color="#050E24"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3D6FE8"/>
+      <stop offset="55%" stop-color="#2E5BFF"/>
+      <stop offset="100%" stop-color="#16357F"/>
+    </linearGradient>
+    <linearGradient id="hairL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8FB4FF"/>
+      <stop offset="100%" stop-color="#4D94FF"/>
+    </linearGradient>
+    <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7FB0FF"/>
+      <stop offset="100%" stop-color="#2E5BFF"/>
+    </linearGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+
+  <!-- 背景：深海夜 -->
+  <rect width="480" height="600" fill="url(#bg)"/>
+  <g opacity="0.5">
+    <circle cx="70" cy="90" r="1.6" fill="#9FC4FF"/><circle cx="410" cy="60" r="1.2" fill="#9FC4FF"/>
+    <circle cx="380" cy="180" r="1.4" fill="#7FA8F0"/><circle cx="90" cy="220" r="1.1" fill="#7FA8F0"/>
+    <circle cx="440" cy="330" r="1.5" fill="#9FC4FF"/><circle cx="40" cy="380" r="1.2" fill="#9FC4FF"/>
+    <circle cx="430" cy="470" r="1.8" fill="#7FA8F0"/><circle cx="55" cy="520" r="1.3" fill="#7FA8F0"/>
+  </g>
+  <!-- 月光 -->
+  <circle cx="368" cy="96" r="46" fill="#BFD6FF" opacity="0.10" filter="url(#soft)"/>
+  <circle cx="368" cy="96" r="22" fill="#DCEBFF" opacity="0.35"/>
+
+  <!-- 身体 -->
+  <g>
+    <!-- 肩 -->
+    <path d="M96 600 C 92 512, 150 460, 240 460 C 330 460, 388 512, 384 600 Z" fill="#0D2A55"/>
+    <!-- 领巾 -->
+    <path d="M204 468 L 240 540 L 276 468 Z" fill="#FFFFFF" opacity="0.92"/>
+    <path d="M204 468 L 240 540 L 258 468 Z" fill="#DCE9FF"/>
+    <path d="M162 470 C 180 486, 222 484, 240 470" stroke="#2E5BFF" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M318 470 C 300 486, 258 484, 240 470" stroke="#2E5BFF" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- 蝴蝶结 -->
+    <path d="M240 486 L 220 476 Q 224 490 240 492 Z" fill="#4D94FF"/>
+    <path d="M240 486 L 260 476 Q 256 490 240 492 Z" fill="#3D6FE8"/>
+    <circle cx="240" cy="485" r="6" fill="#8FB4FF"/>
+  </g>
+
+  <!-- 后发 -->
+  <path d="M118 300 C 92 240, 108 160, 170 132 C 150 190, 148 260, 158 340 C 142 430, 128 520, 122 588 L 190 588 C 196 500, 200 420, 208 356 C 214 316, 224 296, 240 292 C 256 296, 266 316, 272 356 C 280 420, 284 500, 290 588 L 358 588 C 352 520, 338 430, 322 340 C 332 260, 330 190, 310 132 C 372 160, 388 240, 362 300 C 380 340, 386 400, 384 470 L 96 470 C 94 400, 100 340, 118 300 Z" fill="url(#hair)"/>
+  <!-- 后发光泽 -->
+  <path d="M150 250 C 140 330, 138 420, 132 520 L 168 520 C 172 420, 176 340, 184 270 Z" fill="#4D94FF" opacity="0.55"/>
+
+  <!-- 耳朵 -->
+  <ellipse cx="170" cy="330" rx="13" ry="19" fill="#FDE9DC"/>
+  <ellipse cx="310" cy="330" rx="13" ry="19" fill="#FDE9DC"/>
+
+  <!-- 脸 -->
+  <path d="M145 268 C 150 196, 196 156, 240 156 C 284 156, 330 196, 335 268 C 338 320, 322 366, 300 388 C 282 406, 258 414, 240 414 C 222 414, 198 406, 180 388 C 158 366, 142 320, 145 268 Z" fill="#FDE9DC"/>
+  <!-- 颈部阴影 -->
+  <path d="M212 408 C 216 432, 236 440, 240 442 C 244 440, 264 432, 268 408 Z" fill="#F3D6C2"/>
+
+  <!-- 刘海 -->
+  <path d="M150 270 C 144 210, 176 158, 214 150 C 206 170, 210 190, 222 202 C 216 196, 210 188, 210 178 C 224 168, 244 160, 262 158 C 268 178, 274 196, 284 210 C 300 200, 318 190, 330 182 C 346 204, 348 244, 342 278 C 340 236, 328 208, 318 196 C 330 224, 332 258, 330 290 C 320 258, 312 240, 306 228 C 316 252, 316 288, 312 318 C 302 286, 292 264, 282 250 C 296 280, 296 314, 290 340 C 282 318, 274 300, 268 288 C 268 312, 266 336, 262 356 C 246 348, 238 344, 234 342 C 230 350, 224 360, 220 366 C 210 348, 204 332, 202 320 C 196 340, 194 360, 194 378 C 176 362, 162 344, 154 322 C 160 348, 164 372, 168 394 C 158 366, 152 344, 150 322 Z" fill="url(#hairL)"/>
+  <!-- 刘海高光 -->
+  <path d="M180 200 C 196 176, 224 164, 248 162 C 234 178, 216 194, 206 214 Z" fill="#C9DFFF" opacity="0.8"/>
+
+  <!-- 眉毛 -->
+  <path d="M190 268 Q 208 258 226 264" stroke="#8A5A3B" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M256 264 Q 274 258 292 268" stroke="#8A5A3B" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+
+  <!-- 眼睛 -->
+  <g>
+    <ellipse cx="210" cy="300" rx="24" ry="27" fill="#FFFFFF"/>
+    <ellipse cx="272" cy="300" rx="24" ry="27" fill="#FFFFFF"/>
+    <ellipse cx="210" cy="302" rx="20" ry="23" fill="url(#iris)"/>
+    <ellipse cx="272" cy="302" rx="20" ry="23" fill="url(#iris)"/>
+    <ellipse cx="210" cy="302" rx="11" ry="12" fill="#0E2A6B"/>
+    <ellipse cx="272" cy="302" rx="11" ry="12" fill="#0E2A6B"/>
+    <circle cx="202" cy="292" r="6" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="219" cy="311" r="3.4" fill="#FFFFFF" opacity="0.7"/>
+    <circle cx="264" cy="292" r="6" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="281" cy="311" r="3.4" fill="#FFFFFF" opacity="0.7"/>
+    <!-- 平静的眼睑 -->
+    <path d="M186 284 Q 210 274 234 282" stroke="#C89A7A" stroke-width="3.2" fill="none"/>
+    <path d="M248 282 Q 272 274 296 284" stroke="#C89A7A" stroke-width="3.2" fill="none"/>
+  </g>
+
+  <!-- 鼻/嘴 -->
+  <path d="M240 336 Q 243 342 240 346" stroke="#E3BFA6" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <path d="M224 366 Q 240 374 258 366" stroke="#C4796B" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  <!-- 淡淡腮红 -->
+  <ellipse cx="180" cy="352" rx="16" ry="8" fill="#F5A8A0" opacity="0.35"/>
+  <ellipse cx="300" cy="352" rx="16" ry="8" fill="#F5A8A0" opacity="0.35"/>
+
+  <!-- 侧发 -->
+  <path d="M150 300 C 142 380, 140 460, 138 540 L 168 540 C 168 460, 172 380, 178 330 Z" fill="url(#hairL)" opacity="0.9"/>
+  <path d="M330 300 C 338 380, 340 460, 342 540 L 312 540 C 312 460, 308 380, 302 330 Z" fill="url(#hairL)" opacity="0.9"/>
+
+  <!-- 鲸鱼尾鳍发卡（左侧） -->
+  <g transform="translate(150, 208) rotate(-18)">
+    <!-- 尾鳍 -->
+    <path d="M0 0 C -26 -14, -52 -12, -66 2 C -56 -2, -44 -2, -36 4 C -40 14, -34 26, -20 32 C -14 22, -10 12, -8 6 C 8 14, 30 10, 42 0 C 30 -6, 18 -8, 8 -6 C 14 -14, 22 -20, 34 -22 C 24 -22, 10 -18, 0 -12 Z" fill="#4D94FF"/>
+    <path d="M0 -4 C -16 -12, -38 -10, -54 0 M0 -4 C 8 6, 22 8, 34 2" stroke="#BFD6FF" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.95"/>
+    <path d="M0 0 C -18 -9, -40 -8, -58 1" stroke="#FFFFFF" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <circle cx="66" cy="-6" r="2.2" fill="#DCEBFF"/>
+    <circle cx="74" cy="6" r="1.6" fill="#DCEBFF"/>
+    <circle cx="60" cy="14" r="1.4" fill="#DCEBFF"/>
+  </g>
+
+  <!-- 水中光斑 -->
+  <g opacity="0.5">
+    <ellipse cx="360" cy="430" rx="42" ry="7" fill="#4D94FF" opacity="0.16"/>
+    <ellipse cx="120" cy="470" rx="34" ry="6" fill="#4D94FF" opacity="0.12"/>
+    <ellipse cx="300" cy="530" rx="48" ry="7" fill="#4D94FF" opacity="0.10"/>
+  </g>
+</svg>

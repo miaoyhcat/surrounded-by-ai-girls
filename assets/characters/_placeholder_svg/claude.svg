@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#4A2A14"/>
+      <stop offset="55%" stop-color="#331C0D"/>
+      <stop offset="100%" stop-color="#1C0F06"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D9985F"/>
+      <stop offset="55%" stop-color="#B96F3E"/>
+      <stop offset="100%" stop-color="#7E4A22"/>
+    </linearGradient>
+    <linearGradient id="hairL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F2C08A"/>
+      <stop offset="100%" stop-color="#C9874E"/>
+    </linearGradient>
+    <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0B064"/>
+      <stop offset="100%" stop-color="#B76B3F"/>
+    </linearGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="starGlow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <!-- 背景：暖夜 -->
+  <rect width="480" height="600" fill="url(#bg)"/>
+  <g opacity="0.5">
+    <circle cx="70" cy="90" r="1.6" fill="#FFD9A8"/><circle cx="410" cy="60" r="1.2" fill="#FFD9A8"/>
+    <circle cx="380" cy="180" r="1.4" fill="#E8B878"/><circle cx="90" cy="220" r="1.1" fill="#E8B878"/>
+    <circle cx="440" cy="330" r="1.5" fill="#FFD9A8"/><circle cx="40" cy="380" r="1.2" fill="#E8B878"/>
+    <circle cx="430" cy="470" r="1.8" fill="#FFD9A8"/><circle cx="55" cy="520" r="1.3" fill="#E8B878"/>
+  </g>
+  <circle cx="368" cy="96" r="46" fill="#FFE3B8" opacity="0.10" filter="url(#soft)"/>
+  <circle cx="368" cy="96" r="22" fill="#FFF0D4" opacity="0.35"/>
+
+  <!-- 身体：米白针织 + 琥珀披肩 -->
+  <g>
+    <path d="M96 600 C 92 512, 150 460, 240 460 C 330 460, 388 512, 384 600 Z" fill="#2B1708"/>
+    <path d="M200 466 L 240 544 L 280 466 Z" fill="#F7EDE0" opacity="0.95"/>
+    <!-- 针织纹理 -->
+    <path d="M214 486 Q 226 496 238 486" stroke="#E3D2BC" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M216 502 Q 228 512 240 502" stroke="#E3D2BC" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M218 518 Q 230 528 242 518" stroke="#E3D2BC" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M242 486 Q 254 496 266 486" stroke="#E3D2BC" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M240 502 Q 252 512 264 502" stroke="#E3D2BC" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M238 518 Q 250 528 262 518" stroke="#E3D2BC" stroke-width="2" fill="none" opacity="0.7"/>
+    <!-- 琥珀披肩 -->
+    <path d="M160 464 C 186 478, 212 478, 240 464 C 240 478, 244 500, 240 514 C 216 512, 186 502, 162 478 Z" fill="#D97757" opacity="0.92"/>
+    <path d="M320 464 C 294 478, 268 478, 240 464 C 240 478, 236 500, 240 514 C 264 512, 294 502, 318 478 Z" fill="#C4633F" opacity="0.92"/>
+    <!-- 星芒胸针 -->
+    <g transform="translate(240, 476)">
+      <path d="M0 -10 L 2.6 -3.2 L 10 0 L 2.6 3.2 L 0 10 L -2.6 3.2 L -10 0 L -2.6 -3.2 Z" fill="#F2C08A"/>
+      <circle cx="0" cy="0" r="2.4" fill="#FFF0D4"/>
+    </g>
+  </g>
+
+  <!-- 后发 -->
+  <path d="M118 300 C 92 240, 108 160, 170 132 C 150 190, 148 260, 158 340 C 142 430, 128 520, 122 588 L 190 588 C 196 500, 200 420, 208 356 C 214 316, 224 296, 240 292 C 256 296, 266 316, 272 356 C 280 420, 284 500, 290 588 L 358 588 C 352 520, 338 430, 322 340 C 332 260, 330 190, 310 132 C 372 160, 388 240, 362 300 C 380 340, 386 400, 384 470 L 96 470 C 94 400, 100 340, 118 300 Z" fill="url(#hair)"/>
+  <path d="M150 250 C 140 330, 138 420, 132 520 L 168 520 C 172 420, 176 340, 184 270 Z" fill="#E8A86E" opacity="0.5"/>
+
+  <!-- 耳朵 -->
+  <ellipse cx="170" cy="330" rx="13" ry="19" fill="#FBE4D6"/>
+  <ellipse cx="310" cy="330" rx="13" ry="19" fill="#FBE4D6"/>
+
+  <!-- 脸 -->
+  <path d="M145 268 C 150 196, 196 156, 240 156 C 284 156, 330 196, 335 268 C 338 320, 322 366, 300 388 C 282 406, 258 414, 240 414 C 222 414, 198 406, 180 388 C 158 366, 142 320, 145 268 Z" fill="#FBE4D6"/>
+  <path d="M212 408 C 216 432, 236 440, 240 442 C 244 440, 264 432, 268 408 Z" fill="#F2CDB8"/>
+
+  <!-- 刘海（中间偏分） -->
+  <path d="M150 270 C 144 210, 176 158, 214 150 C 206 170, 210 190, 222 202 C 216 196, 210 188, 210 178 C 224 168, 244 160, 262 158 C 268 178, 274 196, 284 210 C 300 200, 318 190, 330 182 C 346 204, 348 244, 342 278 C 340 236, 328 208, 318 196 C 330 224, 332 258, 330 290 C 320 258, 312 240, 306 228 C 316 252, 316 288, 312 318 C 302 286, 292 264, 282 250 C 296 280, 296 314, 290 340 C 282 318, 274 300, 268 288 C 268 312, 266 336, 262 356 C 246 348, 238 344, 234 342 C 230 350, 224 360, 220 366 C 210 348, 204 332, 202 320 C 196 340, 194 360, 194 378 C 176 362, 162 344, 154 322 C 160 348, 164 372, 168 394 C 158 366, 152 344, 150 322 Z" fill="url(#hairL)"/>
+  <path d="M180 200 C 196 176, 224 164, 248 162 C 234 178, 216 194, 206 214 Z" fill="#F8D9AE" opacity="0.75"/>
+
+  <!-- 眉毛（认真微挑） -->
+  <path d="M188 264 Q 208 254 226 258" stroke="#8A5A35" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+  <path d="M256 258 Q 274 254 294 264" stroke="#8A5A35" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+
+  <!-- 眼睛（琥珀、长睫毛、认真） -->
+  <g>
+    <ellipse cx="210" cy="300" rx="23" ry="26" fill="#FFFFFF"/>
+    <ellipse cx="272" cy="300" rx="23" ry="26" fill="#FFFFFF"/>
+    <ellipse cx="210" cy="302" rx="19" ry="22" fill="url(#iris)"/>
+    <ellipse cx="272" cy="302" rx="19" ry="22" fill="url(#iris)"/>
+    <ellipse cx="210" cy="302" rx="10.5" ry="11.5" fill="#7E4A22"/>
+    <ellipse cx="272" cy="302" rx="10.5" ry="11.5" fill="#7E4A22"/>
+    <circle cx="202" cy="292" r="6" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="219" cy="311" r="3.2" fill="#FFFFFF" opacity="0.7"/>
+    <circle cx="264" cy="292" r="6" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="281" cy="311" r="3.2" fill="#FFFFFF" opacity="0.7"/>
+    <path d="M184 282 Q 210 272 236 280" stroke="#C98A5E" stroke-width="3.2" fill="none"/>
+    <path d="M246 280 Q 272 272 298 282" stroke="#C98A5E" stroke-width="3.2" fill="none"/>
+    <!-- 长睫毛 -->
+    <path d="M186 280 L 178 276 M 194 276 L 187 271 M 234 280 L 241 275" stroke="#7E4A22" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.85"/>
+    <path d="M248 280 L 241 275 M 276 276 L 269 271 M 296 280 L 304 276" stroke="#7E4A22" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.85"/>
+  </g>
+
+  <!-- 鼻/嘴（认真抿嘴浅笑） -->
+  <path d="M240 338 Q 243 344 240 348" stroke="#E8BFA4" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <path d="M226 364 Q 240 370 254 364 Q 240 376 226 364 Z" fill="#C4785C"/>
+  <ellipse cx="180" cy="352" rx="15" ry="7.5" fill="#F0A088" opacity="0.3"/>
+  <ellipse cx="300" cy="352" rx="15" ry="7.5" fill="#F0A088" opacity="0.3"/>
+
+  <!-- 侧发 -->
+  <path d="M150 300 C 142 380, 140 460, 138 540 L 168 540 C 168 460, 172 380, 178 330 Z" fill="url(#hairL)" opacity="0.9"/>
+  <path d="M330 300 C 338 380, 340 460, 342 540 L 312 540 C 312 460, 308 380, 302 330 Z" fill="url(#hairL)" opacity="0.9"/>
+
+  <!-- 星芒发卡（左侧，Claude logo ✳） -->
+  <g transform="translate(150, 200) rotate(-14)">
+    <path d="M0 -30 L 7 -10 L 30 0 L 7 10 L 0 30 L -7 10 L -30 0 L -7 -10 Z" fill="#F2C08A" filter="url(#starGlow)" opacity="0.65"/>
+    <path d="M0 -30 L 7 -10 L 30 0 L 7 10 L 0 30 L -7 10 L -30 0 L -7 -10 Z" fill="#FFDFA8"/>
+    <path d="M0 -22 L 5 -8 L 22 0 L 5 8 L 0 22 L -5 8 L -22 0 L -5 -8 Z" fill="#D97757"/>
+    <circle cx="0" cy="0" r="4" fill="#FFF0D4"/>
+  </g>
+  <circle cx="150" cy="200" r="46" fill="#F2C08A" opacity="0.10" filter="url(#soft)"/>
+  <g opacity="0.75">
+    <circle cx="122" cy="244" r="1.8" fill="#F2C08A"/>
+    <circle cx="180" cy="238" r="1.4" fill="#FFFFFF"/>
+    <circle cx="172" cy="168" r="1.5" fill="#F2C08A"/>
+  </g>
+
+  <!-- 暖光 -->
+  <ellipse cx="360" cy="430" rx="42" ry="7" fill="#D97757" opacity="0.14"/>
+  <ellipse cx="120" cy="470" rx="34" ry="6" fill="#D97757" opacity="0.10"/>
+  <ellipse cx="300" cy="530" rx="48" ry="7" fill="#D97757" opacity="0.10"/>
+</svg>

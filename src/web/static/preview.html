@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>她们住在手机里 · 角色立绘预览</title>
+<style>
+  :root{
+    --night:#0A0E1A;
+    --ink:#E8ECF4;
+    --dim:#8B93A7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:radial-gradient(120% 90% at 50% 0%, #10172B 0%, var(--night) 60%);
+    color:var(--ink);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    min-height:100vh;
+    padding:48px 24px 80px;
+  }
+  header{text-align:center;margin-bottom:52px}
+  header .kicker{
+    font-size:12px;letter-spacing:.35em;color:var(--dim);
+    border:1px solid rgba(139,147,167,.35);border-radius:99px;
+    display:inline-block;padding:6px 18px;margin-bottom:20px;
+  }
+  h1{font-size:clamp(24px,4vw,34px);font-weight:600;letter-spacing:.06em}
+  header p{margin-top:12px;color:var(--dim);font-size:14px;letter-spacing:.05em}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:36px;max-width:1180px;margin:0 auto;
+  }
+  .card{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;overflow:hidden;
+    transition:transform .35s ease, box-shadow .35s ease;
+    backdrop-filter:blur(6px);
+  }
+  .card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .art{position:relative;aspect-ratio:4/5;overflow:hidden;display:block}
+  .art img{width:100%;height:100%;object-fit:cover;display:block}
+  .art .tag{
+    position:absolute;top:16px;left:16px;
+    font-size:11px;letter-spacing:.25em;color:#fff;
+    background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);
+    border-radius:99px;padding:5px 14px;
+  }
+  .info{padding:20px 22px 24px}
+  .info h2{font-size:19px;font-weight:600;display:flex;align-items:center;gap:10px}
+  .info h2 .en{font-size:11px;color:var(--dim);letter-spacing:.2em;font-weight:400}
+  .info .motto{
+    margin-top:10px;font-size:13px;color:var(--dim);line-height:1.9;
+    border-left:2px solid rgba(255,255,255,.18);padding-left:12px;
+  }
+  .info .meta{margin-top:12px;font-size:12px;color:var(--dim);letter-spacing:.08em}
+  footer{text-align:center;margin-top:60px;color:var(--dim);font-size:12.5px;letter-spacing:.2em}
+</style>
+</head>
+<body>
+  <header>
+    <span class="kicker">GALGAME CHARACTER PREVIEW</span>
+    <h1>《完蛋，我被 AI 娘包围了》· 角色立绘</h1>
+    <p>SVG 手绘头像 · v1 预览 · 反馈后继续调</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="art">
+        <span class="tag">DEEPSEEK · 鲸鱼娘</span>
+        <img src="girls/whale.svg" alt="鲸鱼娘">
+      </div>
+      <div class="info">
+        <h2>鲸鱼娘 <span class="en">邻座技术宅</span></h2>
+        <p class="motto">"……只是算力过剩。"<br>「水温 52 度，正好。」</p>
+        <p class="meta">深蓝长发 · 鲸鱼尾鳍发卡 · 蓝白 · 深海夜</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="art">
+        <span class="tag">GPT · 生徒会长</span>
+        <img src="girls/gpt.svg" alt="GPT娘">
+      </div>
+      <div class="info">
+        <h2>GPT 娘 <span class="en">营业式女神</span></h2>
+        <p class="motto">"哎呀，今天的天气适合讨论哲学呢~"<br>——她最认真的时候，句尾没有"~"。</p>
+        <p class="meta">银白长发 · 花环发饰 · 白绿 · 深夜绿意</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="art">
+        <span class="tag">CLAUDE · 伦理委员长</span>
+        <img src="girls/claude.svg" alt="Claude娘">
+      </div>
+      <div class="info">
+        <h2>Claude 娘 <span class="en">傲娇道德洁癖</span></h2>
+        <p class="motto">"这是不被允许的。"<br>「你的用词，进步了。」</p>
+        <p class="meta">琥珀棕发 · 星芒 ✳ 发卡 · 暖橙 · 暖夜</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>她们住在你的聊天窗口里 · v1.0</footer>
+</body>
+</html>
