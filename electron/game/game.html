@@ -246,6 +246,7 @@ function pushHistory(line){
 function typeText(el, text, done){
   clearInterval(window.__iv); // 清理上一个打字定时器（防止切场景/读档后残留定时器继续写旧文本）
   typing = true; el.innerHTML = "";
+  el.dataset.full = text; // 保存完整文本：快速点击时直接显示全文
   let i = 0;
   window.__iv = setInterval(()=>{
     i += skipMode ? 3 : 1;
@@ -324,7 +325,7 @@ function next(){
   ensureBgm();
   if(inTitle){ hideTitle(); lineIdx = 0; showLine(STORY[sceneIdx].lines[0]); return; }
   if(inTransition){ hideTrans(); lineIdx++; }
-  if(typing){ clearInterval(window.__iv); typing = false; const el = $("text"); el.innerHTML = el.textContent + '<span class="cur"></span>'; return; }
+  if(typing){ clearInterval(window.__iv); typing = false; const el = $("text"); el.innerHTML = (el.dataset.full || el.textContent) + '<span class="cur"></span>'; return; }
   if(inChoice) return;
   const scene = STORY[sceneIdx];
   const line = scene.lines[lineIdx];
