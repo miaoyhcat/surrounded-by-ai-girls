@@ -339,7 +339,7 @@ function next(){
   if(line.t === "choice"){ showChoice(line); return; }
   showLine(line);
   lineIdx++;
-  if(!skipToChoice) autoSave(); // 快进到选项时减少写盘，停下时统一保存
+  if(!skipMode && !skipToChoice) autoSave(); // 快进中减少写盘，停下时统一保存
 }
 
 function autoDelay(){
@@ -352,16 +352,21 @@ function scheduleAuto(){
   autoTimer = setTimeout(()=>{ next(); }, inTransition ? Math.round(autoDelay()*1.15) : autoDelay());
 }
 
-$("boxInner").onclick = next;
-$("clickLayer").onclick = next;
-$("trans").onclick = next;
-$("titleCard").onclick = next;
+// 用户点击推进：快进模式中点击 = 退出快进
+function userNext(){
+  if(skipMode){ stopSkip(); return; }
+  next();
+}
+$("boxInner").onclick = userNext;
+$("clickLayer").onclick = userNext;
+$("trans").onclick = userNext;
+$("titleCard").onclick = userNext;
 
 // ─── 菜单 ───
 $("menuBtn").onclick = (e)=>{ e.stopPropagation(); toggleMenu(); };
 document.addEventListener("keydown", e=>{
   if(e.key === "Escape"){ toggleMenu(true); return; }
-  if(e.key === " " || e.key === "Enter") next();
+  if(e.key === " " || e.key === "Enter") userNext();
 });
 function toggleMenu(forceClose){
   const p = $("menuPanel");
@@ -380,7 +385,20 @@ $("mSkip").onclick = ()=>{
   $("mSkip").classList.toggle("on", skipMode);
   $("mAuto").classList.remove("on");
   $("mSkipTo").classList.remove("on");
+  if(skipMode){ toggleMenu(true); runSkip(); } // 开启后自动连续跳过
 };
+// 快进：自动连续跳过文本，遇到选项停下；再点按钮或点击任意处退出
+function runSkip(){
+  if(!skipMode) return;
+  if(inChoice){ stopSkip(); return; }
+  next();
+  setTimeout(runSkip, 25);
+}
+function stopSkip(){
+  skipMode = false;
+  $("mSkip").classList.remove("on");
+  autoSave(); // 快进停止时保存进度
+}
 
 // ─── 快进到下一个选项（停下） ───
 let skipToChoice = false;
