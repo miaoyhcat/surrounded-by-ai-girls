@@ -25,7 +25,13 @@ function createWindow() {
   win.webContents.on("will-navigate", (e, url) => {
     if (!url.startsWith("file://")) e.preventDefault();
   });
-  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  // 游戏内官网链接 → 系统浏览器打开
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      require("electron").shell.openExternal(url);
+    }
+    return { action: "deny" };
+  });
 }
 
 app.whenReady().then(() => {
