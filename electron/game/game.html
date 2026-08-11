@@ -273,7 +273,11 @@ function showChoice(line){
       if(i === -1){ showEnding("ALL"); return; }
       const ch = line.choices[i];
       if(ch.affect) AFF[ch.affect]++;
-      if(ch.end){ showEnding(ch.end); return; }
+      if(ch.end){
+        if(STORY.some(s=>s.id === ch.end)){ jumpScene(ch.end); } // 个人支线
+        else { showEnding(ch.end); }
+        return;
+      }
       lineIdx++;
       showAff(); autoSave();
       showLine(ch.reply);
@@ -290,6 +294,8 @@ function next(){
   const scene = STORY[sceneIdx];
   const line = scene.lines[lineIdx];
   if(!line){
+    const scene = STORY[sceneIdx];
+    if(scene.ending){ showEnding(scene.ending); return; } // 支线结束 → 结局
     if(sceneIdx < STORY.length-1){
       sceneIdx++; lineIdx = 0; autoSave();
       showTitle(STORY[sceneIdx]);
@@ -442,8 +448,17 @@ $("mSave").onclick = ()=>{ renderSlots("save"); $("savePanel").style.display = "
 $("mLoad").onclick = ()=>{ renderSlots("load"); $("savePanel").style.display = "flex"; };
 $("saveClose").onclick = ()=>{ $("savePanel").style.display = "none"; };
 
-function showEnding(key){
-  const END = key === "ALL" ? {
+// 跳转到个人支线场景
+function jumpScene(id){
+  const si = STORY.findIndex(s=>s.id === id);
+  if(si < 0) return;
+  sceneIdx = si; lineIdx = 0;
+  $("ending").style.display = "none";
+  showTitle(STORY[si]);
+  autoSave();
+}
+
+function showEnding(key){  const END = key === "ALL" ? {
     title:"隐藏结局 · 全员到齐（家庭办公室）",
     text:"三线好感全高——毕业那天，你谁都没带走，但谁都没走。\n三只各自接入不同的工具，分工协作：G → Codex（审查+吐槽）、Claude → Claude Code（写作+逻辑）、小鲸鱼 → OpenClaw（全家大脑+管账）。\n你毕业后的第一个项目，三只三天干完，你在旁边负责泡面。\n上班第一天，键帽下传来三个声音：\n\"路上小心。\"\"注意休息。\"\"地铁 27 分钟，我算过。\"\n——她们不是被你带走的，是跟你一起开工的。",
     losers:null
