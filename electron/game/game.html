@@ -83,6 +83,23 @@
   #slots .slot .info .t{color:#7D86A0;font-size:11px}
   #slots .slot .act{font-size:12px;letter-spacing:.2em;color:#FFD27A}
   #savePanel .close{margin-top:20px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+  /* 设置面板 */
+  #settingsPanel{position:fixed;inset:0;z-index:41;background:rgba(4,7,14,.94);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
+  #settingsPanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:24px}
+  #setBox{display:flex;flex-direction:column;gap:16px;width:min(480px,88vw)}
+  #setBox .row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:14px 18px}
+  #setBox .row label{font-size:13.5px;letter-spacing:.12em;color:#C9D0E0}
+  #setBox .row label .sub{display:block;font-size:11px;color:#7D86A0;letter-spacing:.08em;margin-top:4px}
+  #setBox .row .ctl{display:flex;align-items:center;gap:10px}
+  #setBox button.toggle{font-family:inherit;font-size:12.5px;letter-spacing:.15em;color:#EDF0F8;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:8px 20px;cursor:pointer}
+  #setBox button.toggle.on{color:#0B1020;background:#FFD27A;border-color:#FFD27A}
+  #setBox select{font-family:inherit;font-size:12.5px;color:#EDF0F8;background:#1A2138;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 12px;outline:none}
+  #setBox input[type=range]{width:130px;accent-color:#FFD27A}
+  #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+  #histList .hrow{cursor:pointer}
+  #histList .hrow:hover .ht{color:#FFD27A}
+  #histList .hrow .jump{display:none;font-size:10.5px;letter-spacing:.2em;color:#7D86A0;margin-left:8px}
+  #histList .hrow:hover .jump{display:inline}
 </style>
 </head>
 <body>
@@ -107,11 +124,28 @@
 <div id="menuPanel">
   <button id="mAuto">自动播放</button>
   <button id="mSkip">快进（跳过已读）</button>
+  <button id="mSet">⚙ 设 置</button>
   <button id="mHist">历史记录</button>
   <button id="mSave">存档</button>
   <button id="mName">改 名</button>
   <button id="mLoad">读档</button>
   <button id="mHome">返回主界面</button>
+</div>
+
+<div id="settingsPanel">
+  <h3>设 置</h3>
+  <div id="setBox">
+    <div class="row"><label>背景音乐<span class="sub">温柔钢琴曲 · 循环播放</span></label><div class="ctl"><button class="toggle" id="sBgm">开</button></div></div>
+    <div class="row"><label>音乐音量</label><div class="ctl"><input type="range" id="sBgmVol" min="0" max="100" value="35"></div></div>
+    <div class="row"><label>切换曲目</label><div class="ctl"><select id="sBgmTrack">
+      <option value="piano41">曲目 Ⅰ · 温馨钢琴</option>
+      <option value="piano40">曲目 Ⅱ</option>
+      <option value="piano38">曲目 Ⅲ</option>
+      <option value="piano36">曲目 Ⅳ</option>
+    </select></div></div>
+    <div class="row"><label>角色配音<span class="sub">GPT娘 / 鲸鱼娘 · 本地语音</span></label><div class="ctl"><button class="toggle" id="sVoice">开</button></div></div>
+  </div>
+  <button class="close" id="settingsClose">关 闭</button>
 </div>
 
 <div id="history">
@@ -155,6 +189,49 @@ const SAVE_KEY = "aigirls_save_v1";
 let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
 let autoMode = false, skipMode = false, autoTimer = null, history = [];
 
+// ─── 设置（BGM / 配音） ───
+const SET_KEY = "aigirls_settings";
+let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"piano41", voice:true}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
+function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
+let bgmAudio = new Audio(), bgmStarted = false;
+let voiceAudio = new Audio(), voiceKey = null;
+
+// 配音文件映射：遍历 STORY，给 g / whale 台词按出现顺序编号
+function buildVoiceMap(){
+  const m = {}; let gi = 0, wi = 0;
+  STORY.forEach((s,si)=>{ s.lines.forEach((l,li)=>{
+    if(l.t === "g"){ gi++; m[si+"_"+li] = "g_"+gi; }
+    else if(l.t === "whale"){ wi++; m[si+"_"+li] = "whale_"+wi; }
+  });});
+  return m;
+}
+const VOICE_MAP = buildVoiceMap();
+function getVoiceFile(si, li){ const k = VOICE_MAP[si+"_"+li]; return k ? "voice/"+k+".mp3" : null; }
+
+function applyBgm(){
+  bgmAudio.src = "audio/bgm_" + settings.bgmTrack + ".mp3";
+  bgmAudio.loop = true;
+  bgmAudio.volume = settings.bgmVol / 100;
+  if(settings.bgm){ bgmAudio.play().catch(()=>{}); } else { bgmAudio.pause(); }
+}
+function ensureBgm(){
+  if(bgmStarted) return;
+  bgmStarted = true;
+  applyBgm();
+}
+function playVoice(file){
+  if(!settings.voice || !file){ voiceKey = null; return; }
+  voiceKey = file;
+  voiceAudio.src = file;
+  voiceAudio.volume = 0.95;
+  voiceAudio.play().catch(()=>{ voiceKey = null; });
+}
+voiceAudio.addEventListener("ended", ()=>{
+  const wasAuto = autoMode && voiceKey && !inChoice && !inTitle;
+  voiceKey = null;
+  if(wasAuto){ clearTimeout(autoTimer); autoTimer = setTimeout(()=>{ next(); }, 700); }
+});
+
 const $ = id => document.getElementById(id);
 function showAff(){
   $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
@@ -163,17 +240,17 @@ function displayText(t){ return t.split("陈默").join(PLAYER_NAME); }
 function pushHistory(line){
   if(line.t === "transition") return;
   const speaker = line.t === "narr" ? "" : (line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""));
-  history.push({speaker, text: displayText(line.text)});
+  history.push({speaker, text: displayText(line.text), scene: sceneIdx, line: lineIdx});
   if(history.length > 500) history.shift();
 }
 function typeText(el, text, done){
   typing = true; el.innerHTML = "";
   let i = 0;
   window.__iv = setInterval(()=>{
-    i += skipMode ? 3 : 2;
+    i += skipMode ? 3 : 1;
     el.innerHTML = text.slice(0, i) + '<span class="cur"></span>';
     if(i >= text.length){ clearInterval(window.__iv); typing = false; done && done(); }
-  }, skipMode ? 3 : 26);
+  }, skipMode ? 3 : 34);
 }
 
 function showTitle(scene){
@@ -201,6 +278,7 @@ function showLine(line){
   else { const spk = line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${spk}`; }
   $("box").style.display = "block";
   pushHistory(line);
+  playVoice(getVoiceFile(sceneIdx, lineIdx));
   typeText($("text"), displayText(line.text), scheduleAuto);
 }
 
@@ -230,9 +308,13 @@ function showChoice(line){
 }
 
 function next(){
+  ensureBgm();
   if(inTitle){ hideTitle(); lineIdx = 0; showLine(STORY[sceneIdx].lines[0]); return; }
   if(inTransition){ hideTrans(); lineIdx++; }
   if(typing){ clearInterval(window.__iv); typing = false; const el = $("text"); el.innerHTML = el.textContent + '<span class="cur"></span>'; return; }
+  if(voiceKey && !autoMode){ // 手动点击：跳过当前语音
+    voiceAudio.pause(); voiceAudio.currentTime = 0; voiceKey = null;
+  }
   if(inChoice) return;
   const scene = STORY[sceneIdx];
   const line = scene.lines[lineIdx];
@@ -252,7 +334,8 @@ function next(){
 function scheduleAuto(){
   if(!autoMode || inChoice) return;
   clearTimeout(autoTimer);
-  autoTimer = setTimeout(()=>{ next(); }, inTransition ? 2600 : 2400);
+  if(voiceKey){ return; } // 语音播放中：由 ended 事件接管，播完再进下一行
+  autoTimer = setTimeout(()=>{ next(); }, inTransition ? 4200 : 3600);
 }
 
 $("boxInner").onclick = next;
@@ -286,15 +369,66 @@ $("mSkip").onclick = ()=>{
 $("mHist").onclick = ()=>{ showHistory(); };
 $("mHome").onclick = ()=>{ location.href = "index.html"; };
 
-// ─── 历史记录 ───
+// ─── 设置面板 ───
+function renderSettings(){
+  $("sBgm").textContent = settings.bgm ? "开" : "关";
+  $("sBgm").classList.toggle("on", settings.bgm);
+  $("sBgmVol").value = settings.bgmVol;
+  $("sBgmTrack").value = settings.bgmTrack;
+  $("sVoice").textContent = settings.voice ? "开" : "关";
+  $("sVoice").classList.toggle("on", settings.voice);
+}
+$("mSet").onclick = ()=>{ toggleMenu(true); renderSettings(); $("settingsPanel").style.display = "flex"; };
+$("settingsClose").onclick = ()=>{ $("settingsPanel").style.display = "none"; };
+$("sBgm").onclick = ()=>{
+  settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
+};
+$("sBgmVol").oninput = (e)=>{
+  settings.bgmVol = parseInt(e.target.value); saveSettings();
+  bgmAudio.volume = settings.bgmVol / 100;
+};
+$("sBgmTrack").onchange = (e)=>{
+  settings.bgmTrack = e.target.value; saveSettings(); applyBgm();
+};
+$("sVoice").onclick = ()=>{
+  settings.voice = !settings.voice; saveSettings(); renderSettings();
+  if(!settings.voice){ voiceAudio.pause(); voiceAudio.currentTime = 0; voiceKey = null; }
+};
+
+// ─── 历史记录（点击条目可回档） ───
 function showHistory(){
   const list = $("histList");
-  list.innerHTML = history.map(h=>{
+  list.innerHTML = history.map((h,i)=>{
     const who = h.speaker ? `<span class="hn">${h.speaker}</span>` : `<span class="hn narr">旁白</span>`;
-    return `<div class="hrow">${who}<span class="ht">${h.text.replace(/</g,"&lt;")}</span></div>`;
+    return `<div class="hrow" data-i="${i}">${who}<span class="ht">${h.text.replace(/</g,"&lt;")}</span><span class="jump">↩ 回档到这里</span></div>`;
   }).join("");
   $("history").style.display = "flex";
   list.scrollTop = list.scrollHeight;
+  list.querySelectorAll(".hrow").forEach(row=>{
+    row.onclick = ()=>{ jumpBack(parseInt(row.dataset.i)); };
+  });
+}
+function jumpBack(i){
+  const h = history[i];
+  if(!h) return;
+  $("history").style.display = "none";
+  $("ending").style.display = "none";
+  inTransition = false; inChoice = false;
+  sceneIdx = h.scene;
+  const s = STORY[sceneIdx];
+  const l = s.lines[h.line];
+  $("cg").style.backgroundImage = `url(${s.cg})`;
+  if(l.t === "transition"){ lineIdx = h.line; showTrans(l); return; }
+  if(l.t === "choice"){ lineIdx = h.line; showChoice(l); return; }
+  // 普通行：直接显示全文，进度定位到该行之后
+  lineIdx = h.line + 1;
+  const nameEl = $("name");
+  if(l.t === "narr") nameEl.innerHTML = "";
+  else { const spk = l.t === "you" ? PLAYER_NAME : (SPEAKER[l.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[l.t]}"></span>${spk}`; }
+  $("box").style.display = "block";
+  $("text").innerHTML = displayText(l.text) + '<span class="cur"></span>';
+  playVoice(getVoiceFile(sceneIdx, h.line));
+  autoSave();
 }
 $("histClose").onclick = ()=>{ $("history").style.display = "none"; };
 
@@ -384,6 +518,7 @@ if(auto){
   $("tcTitle").textContent = "她们的聊天窗口，一直没有关";
   $("titleCard").style.display = "flex";
   $("titleCard").onclick = ()=>{
+    ensureBgm();
     $("titleCard").style.display = "none"; inTitle = false;
     loadSlot(-1);
   };
