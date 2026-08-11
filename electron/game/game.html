@@ -8,6 +8,7 @@
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden;user-select:none;background:#0B1020;color:#EDF0F8}
   #stage{position:fixed;inset:0}
+  #clickLayer{position:fixed;inset:0;z-index:10;cursor:pointer}
   #cg{position:absolute;inset:0;background:center/contain no-repeat;transition:opacity .6s;background-color:#0B1020}
   /* 顶部 */
   #top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;pointer-events:none}
@@ -40,6 +41,14 @@
   #titleCard .d{font-size:12px;letter-spacing:.45em;color:#7D86A0;margin-bottom:20px}
   #titleCard h2{font-size:clamp(22px,4vw,34px);letter-spacing:.14em;font-weight:700;color:#EDF0F8}
   #titleCard .go{margin-top:34px;font-size:12px;letter-spacing:.3em;color:#5C6580;animation:blink 1.6s steps(1) infinite}
+  /* 名字面板 */
+  #namePanel{position:fixed;inset:0;z-index:45;background:rgba(4,7,14,.94);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+  #namePanel h3{font-size:16px;letter-spacing:.5em;color:#EDF0F8}
+  #namePanel .sub{font-size:12px;letter-spacing:.2em;color:#7D86A0}
+  #nameInput{font-family:inherit;font-size:20px;letter-spacing:.2em;text-align:center;color:#EDF0F8;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:12px 24px;width:min(280px,70vw);outline:none}
+  #nameInput:focus{border-color:#FFD27A}
+  #nameOk{font-family:inherit;font-size:14px;letter-spacing:.3em;color:#0B1020;background:#FFD27A;border:none;border-radius:99px;padding:13px 48px;cursor:pointer}
+  #nameOk:hover{background:#FFE3A8}
   /* 结局 */
   #ending{position:fixed;inset:0;z-index:40;background:radial-gradient(120% 100% at 50% 0%,#141B30,#070B16);display:none;align-items:center;justify-content:center;padding:6vh 6vw;overflow:auto}
   #endingInner{max-width:760px;text-align:center}
@@ -78,6 +87,7 @@
 </head>
 <body>
 <div id="stage"><div id="cg"></div></div>
+<div id="clickLayer"></div>
 
 <div id="top">
   <div id="sceneInfo"></div>
@@ -99,6 +109,7 @@
   <button id="mSkip">快进（跳过已读）</button>
   <button id="mHist">历史记录</button>
   <button id="mSave">存档</button>
+  <button id="mName">改 名</button>
   <button id="mLoad">读档</button>
   <button id="mHome">返回主界面</button>
 </div>
@@ -115,6 +126,13 @@
   <button class="close" id="saveClose">关 闭</button>
 </div>
 
+<div id="namePanel">
+  <h3>你 的 名 字</h3>
+  <p class="sub">四年里，她们会这样叫你</p>
+  <input id="nameInput" maxlength="8">
+  <button id="nameOk">确 定</button>
+</div>
+
 <div id="ending">
   <div id="endingInner">
     <div class="k">结 局</div>
@@ -129,8 +147,9 @@
 <script src="data.js"></script>
 <script>
 const NAME_COLOR = {g:"#FFD27A", claude:"#F0A878", whale:"#7FB0FF", you:"#9FB4E8", oclaw:"#A8B8D8"};
-const SPEAKER = {g:"G", claude:"Claude", whale:"小鲸鱼", you:"陈默", oclaw:"OpenClaw"};
-const AFF_NAME = {g:"G", claude:"Claude", whale:"小鲸鱼"};
+let PLAYER_NAME = localStorage.getItem("aigirls_name") || "陈默";
+const SPEAKER = {g:"GPT娘", claude:"Claude娘", whale:"DS娘", oclaw:"OpenClaw"};
+const AFF_NAME = {g:"GPT娘", claude:"Claude娘", whale:"DS娘"};
 const SAVE_KEY = "aigirls_save_v1";
 
 let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
@@ -140,10 +159,11 @@ const $ = id => document.getElementById(id);
 function showAff(){
   $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
 }
+function displayText(t){ return t.split("陈默").join(PLAYER_NAME); }
 function pushHistory(line){
   if(line.t === "transition") return;
-  const speaker = line.t === "narr" ? "" : (SPEAKER[line.t] || "");
-  history.push({speaker, text: line.text});
+  const speaker = line.t === "narr" ? "" : (line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""));
+  history.push({speaker, text: displayText(line.text)});
   if(history.length > 500) history.shift();
 }
 function typeText(el, text, done){
@@ -178,10 +198,10 @@ function showLine(line){
   if(line.t === "transition"){ showTrans(line); return; }
   const nameEl = $("name");
   if(line.t === "narr") nameEl.innerHTML = "";
-  else nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${SPEAKER[line.t] || ""}`;
+  else { const spk = line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${spk}`; }
   $("box").style.display = "block";
   pushHistory(line);
-  typeText($("text"), line.text, scheduleAuto);
+  typeText($("text"), displayText(line.text), scheduleAuto);
 }
 
 function showChoice(line){
@@ -236,6 +256,7 @@ function scheduleAuto(){
 }
 
 $("boxInner").onclick = next;
+$("clickLayer").onclick = next;
 $("trans").onclick = next;
 $("titleCard").onclick = next;
 
@@ -340,7 +361,22 @@ function showEnding(key){
 }
 $("endHome").onclick = ()=>{ location.href = "index.html"; };
 
-// 启动：有自动存档则询问继续
+// 启动：先确认名字
+function openNamePanel(){
+  $("namePanel").style.display = "flex";
+  $("nameInput").value = PLAYER_NAME;
+  $("nameOk").onclick = ()=>{
+    const n = $("nameInput").value.trim() || "陈默";
+    localStorage.setItem("aigirls_name", n);
+    location.reload();
+  };
+}
+$("mName").onclick = openNamePanel;
+
+if(!localStorage.getItem("aigirls_name")){
+  openNamePanel();
+}
+
 showAff();
 const auto = localStorage.getItem(SAVE_KEY + "_auto");
 if(auto){
