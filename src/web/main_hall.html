@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完蛋，我被AI娘包围了 · 主页大厅</title>
+<style>
+  :root{
+    --ink:#1C2333;
+    --dim:#6B7385;
+    --line:rgba(28,35,51,.12);
+    --card:rgba(255,255,255,.78);
+    --g:#FF9F43;
+    --w:#4D94FF;
+    --c:#E8834F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--ink);overflow:hidden;user-select:none;
+    background:url("../../assets/ui/main_hall_bg.png") center/cover no-repeat;
+    background-color:#F5F3EE;
+  }
+  /* 左侧浅色渐变罩，保证文字可读 */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.65) 34%,rgba(255,255,255,0) 55%);
+  }
+
+  /* 左侧 UI 面板 */
+  .panel{
+    position:fixed;left:clamp(18px,4vw,56px);top:50%;transform:translateY(-50%);
+    z-index:5;width:min(300px,40vw);
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .kicker{
+    align-self:flex-start;font-size:10.5px;letter-spacing:.4em;color:var(--dim);
+    border:1px solid var(--line);border-radius:99px;padding:6px 16px;
+    background:var(--card);backdrop-filter:blur(6px);
+  }
+  h1{
+    font-size:clamp(24px,3.4vw,38px);font-weight:800;letter-spacing:.08em;line-height:1.35;
+    color:var(--ink);
+  }
+  h1 .en{
+    display:block;font-size:10px;letter-spacing:.34em;color:var(--dim);font-weight:400;margin-top:6px;
+  }
+  .menu{margin-top:6px;display:flex;flex-direction:column;gap:10px}
+  .menu button{
+    font-family:inherit;text-align:left;
+    font-size:14px;letter-spacing:.2em;color:var(--ink);
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:13px 20px;cursor:pointer;backdrop-filter:blur(8px);
+    transition:all .22s ease;
+    box-shadow:0 2px 10px rgba(28,35,51,.05);
+  }
+  .menu button .en{
+    display:block;font-size:9px;letter-spacing:.26em;color:var(--dim);margin-top:4px;
+  }
+  .menu button:hover{
+    transform:translateX(5px);border-color:rgba(28,35,51,.3);
+    box-shadow:0 6px 22px rgba(28,35,51,.1);
+  }
+  .menu button.hl{border-left:3px solid var(--w)}
+
+  .footer{
+    position:fixed;left:clamp(18px,4vw,56px);bottom:22px;z-index:5;
+    font-size:10.5px;letter-spacing:.26em;color:var(--dim);
+  }
+
+  /* 三只小人可点击（叠在背景图上，仅交互热区） */
+  .girl{
+    position:fixed;bottom:8vh;z-index:6;cursor:pointer;
+    width:16vw;height:34vh;max-width:180px;
+  }
+  .girl .tip{
+    position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);
+    white-space:nowrap;font-size:12px;letter-spacing:.14em;color:var(--ink);
+    background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:99px;
+    padding:6px 14px;opacity:0;transition:opacity .2s;pointer-events:none;
+    box-shadow:0 4px 14px rgba(28,35,51,.1);
+  }
+  .girl:hover .tip{opacity:1}
+  .girl:hover{filter:drop-shadow(0 0 0 transparent)}
+
+  /* 选中卡片 */
+  .mask{position:fixed;inset:0;background:rgba(28,35,51,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:15}
+  .mask.show{opacity:1;pointer-events:auto}
+  .pop{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.92);
+    z-index:20;width:min(400px,86vw);background:rgba(255,255,255,.97);
+    border:1px solid var(--line);border-radius:18px;padding:26px;text-align:center;
+    opacity:0;pointer-events:none;transition:all .26s ease;
+    box-shadow:0 24px 60px rgba(28,35,51,.25);
+  }
+  .pop.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+  .pop h3{font-size:21px;letter-spacing:.1em}
+  .pop .dot{font-size:11px;letter-spacing:.3em;color:var(--dim);margin-top:6px}
+  .pop .motto{margin-top:12px;font-size:13.5px;color:#4A5264;line-height:2}
+  .pop .actions{display:flex;gap:12px;justify-content:center;margin-top:20px}
+  .pop button{
+    font-family:inherit;font-size:13px;letter-spacing:.14em;padding:11px 24px;border-radius:10px;
+    border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;
+  }
+  .pop button:hover{border-color:rgba(28,35,51,.35);background:#F7F8FB}
+  .pop button.main{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pop button.main:hover{background:#2A3348}
+
+  @media (max-width:760px){
+    .panel{left:16px;right:16px;width:auto;top:6vh;transform:none;gap:10px}
+    h1{font-size:26px}
+    .menu{flex-direction:row;flex-wrap:wrap}
+    .menu button{padding:10px 14px;font-size:12px}
+    .footer{left:16px}
+  }
+</style>
+</head>
+<body>
+
+<!-- 左侧 UI -->
+<div class="panel">
+  <span class="kicker">KEYBOARD COZY GAME</span>
+  <h1>完蛋，我被AI娘包围了
+    <span class="en">SURROUNDED BY AI GIRLS</span>
+  </h1>
+  <nav class="menu">
+    <button class="hl">继续游戏<span class="en">CONTINUE</span></button>
+    <button>新的开始<span class="en">NEW GAME</span></button>
+    <button>回忆相册<span class="en">ALBUM</span></button>
+    <button>羁绊图鉴<span class="en">COLLECTION</span></button>
+    <button>设置<span class="en">SETTINGS</span></button>
+  </nav>
+</div>
+
+<div class="footer">她们住在你的键盘上 · 2022 — 2026 · v0.1</div>
+
+<!-- 三只小人交互热区（叠在背景图上） -->
+<div class="girl" style="left:30%" data-g="g"><span class="tip">G · 话痨小太阳</span></div>
+<div class="girl" style="left:48%" data-g="whale"><span class="tip">小鲸鱼 · 省钱技术宅</span></div>
+<div class="girl" style="left:66%" data-g="claude"><span class="tip">Claude · 傲娇洁癖</span></div>
+
+<div class="mask" id="mask"></div>
+<div class="pop" id="pop">
+  <h3 id="popName"></h3>
+  <p class="dot" id="popDot"></p>
+  <p class="motto" id="popMotto"></p>
+  <div class="actions">
+    <button class="main" id="popChat">进入聊天</button>
+    <button id="popClose">关 闭</button>
+  </div>
+</div>
+
+<script>
+  const GIRLS={
+    g:{name:'G',dot:'话痨小太阳 · 驻空格键',motto:'"哎呀，今天的天气适合讨论哲学呢~"<br>——她最认真的时候，句尾没有"~"。'},
+    whale:{name:'小鲸鱼',dot:'省钱技术宅 · 驻F键',motto:'"……只是算力过剩。"<br>「水温 52 度，正好。」'},
+    claude:{name:'Claude',dot:'傲娇洁癖 · 驻Esc键',motto:'"这是不被允许的。"<br>"随便你。反正我本来就不适合你这种键盘。"'}
+  };
+  const pop=document.getElementById('pop'),mask=document.getElementById('mask');
+  document.querySelectorAll('.girl').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const g=GIRLS[el.dataset.g];
+      document.getElementById('popName').textContent=g.name;
+      document.getElementById('popDot').textContent=g.dot;
+      document.getElementById('popMotto').innerHTML=g.motto;
+      pop.classList.add('show');mask.classList.add('show');
+    });
+  });
+  document.getElementById('popClose').onclick=()=>{pop.classList.remove('show');mask.classList.remove('show')};
+  mask.onclick=document.getElementById('popClose').onclick;
+  document.getElementById('popChat').onclick=()=>{alert('聊天系统开发中 —— 引擎在路上');};
+</script>
+</body>
+</html>
