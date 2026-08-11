@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完蛋，我被AI娘包围了 · Demo</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden;user-select:none;background:#0B1020;color:#EDF0F8}
+  #stage{position:fixed;inset:0}
+  #cg{position:absolute;inset:0;background:center/cover no-repeat;transition:opacity .6s}
+  #cg.dim::after{content:"";position:absolute;inset:0;background:rgba(8,12,24,.35)}
+  /* 顶部 */
+  #top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px 20px;pointer-events:none}
+  #sceneInfo{font-size:12px;letter-spacing:.14em;color:#9AA3B8;background:rgba(10,14,28,.7);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:7px 16px;backdrop-filter:blur(4px)}
+  #aff{display:flex;gap:10px;font-size:12px;letter-spacing:.06em}
+  #aff span{background:rgba(10,14,28,.75);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:7px 14px;backdrop-filter:blur(4px)}
+  #aff .n{color:#FFD27A}
+  /* 对话框 */
+  #box{
+    position:fixed;left:0;right:0;bottom:0;z-index:15;padding:0 4vw 3.5vh;
+  }
+  #boxInner{
+    max-width:900px;margin:0 auto;background:rgba(10,14,28,.88);border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;padding:20px 26px 22px;backdrop-filter:blur(10px);
+    min-height:150px;cursor:pointer;transition:transform .1s;
+    box-shadow:0 10px 40px rgba(0,0,0,.4);
+  }
+  #boxInner:active{transform:scale(.995)}
+  #name{display:inline-block;font-size:13px;letter-spacing:.2em;color:#9AA3B8;margin-bottom:8px}
+  #name .c{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+  #text{font-size:clamp(15px,2.4vw,18px);line-height:2;color:#EDF0F8;min-height:72px}
+  #text .cur{display:inline-block;width:2px;height:1.1em;background:#EDF0F8;vertical-align:-2px;animation:blink .8s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  #hint{position:fixed;right:24px;bottom:20px;z-index:21;font-size:11px;letter-spacing:.2em;color:#5C6580;pointer-events:none;opacity:.7}
+  /* 选项 */
+  #choices{position:fixed;left:0;right:0;bottom:22vh;z-index:22;display:none;flex-direction:column;gap:12px;align-items:center;padding:0 4vw}
+  #choices button{
+    font-family:inherit;font-size:15px;letter-spacing:.1em;color:#EDF0F8;
+    background:rgba(14,19,36,.92);border:1px solid rgba(255,255,255,.22);border-radius:12px;
+    padding:14px 30px;cursor:pointer;min-width:min(420px,80vw);
+    transition:all .2s;backdrop-filter:blur(6px);
+  }
+  #choices button:hover{border-color:#FFD27A;transform:translateX(4px);background:rgba(30,38,66,.95)}
+  #choices .q{font-size:13px;letter-spacing:.12em;color:#9AA3B8;margin-bottom:2px;text-align:center}
+  /* 转场 */
+  #trans{position:fixed;inset:0;z-index:25;background:rgba(6,9,18,.97);display:none;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;padding:0 10vw;text-align:center}
+  #trans .d{font-size:12px;letter-spacing:.4em;color:#7D86A0;margin-bottom:22px}
+  #trans .t{font-size:clamp(15px,2.4vw,19px);line-height:2.2;color:#D5DBEA;max-width:720px}
+  /* 标题卡 */
+  #titleCard{position:fixed;inset:0;z-index:30;background:rgba(6,9,18,.96);display:none;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;text-align:center}
+  #titleCard .d{font-size:12px;letter-spacing:.45em;color:#7D86A0;margin-bottom:20px}
+  #titleCard h2{font-size:clamp(22px,4vw,34px);letter-spacing:.14em;font-weight:700;color:#EDF0F8}
+  #titleCard .go{margin-top:34px;font-size:12px;letter-spacing:.3em;color:#5C6580;animation:blink 1.6s steps(1) infinite}
+  /* 结局 */
+  #ending{position:fixed;inset:0;z-index:40;background:radial-gradient(120% 100% at 50% 0%,#141B30,#070B16);display:none;align-items:center;justify-content:center;padding:6vh 6vw;overflow:auto}
+  #endingInner{max-width:760px;text-align:center}
+  #endingInner .k{font-size:12px;letter-spacing:.5em;color:#7D86A0}
+  #endingInner h2{font-size:clamp(26px,4.5vw,40px);letter-spacing:.12em;margin:16px 0 8px;color:#EDF0F8}
+  #endingInner .txt{font-size:clamp(15px,2.3vw,17.5px);line-height:2.2;color:#C9D0E0;margin-top:18px;white-space:pre-line}
+  #endingInner .losers{margin-top:30px;border-top:1px solid rgba(255,255,255,.12);padding-top:22px;font-size:13.5px;color:#8B93A7;line-height:2.4}
+  #endingInner .report{margin-top:30px;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:18px 24px;font-size:13px;color:#9AA3B8;letter-spacing:.1em;background:rgba(255,255,255,.03)}
+  #endingInner .btn{
+    margin-top:30px;font-family:inherit;font-size:14px;letter-spacing:.25em;color:#0B1020;
+    background:#EDF0F8;border:none;border-radius:99px;padding:15px 44px;cursor:pointer;
+  }
+  #endingInner .btn:hover{background:#FFD27A}
+  /* 跳过 */
+  #skip{position:fixed;right:20px;top:58px;z-index:26;font-family:inherit;font-size:11px;letter-spacing:.2em;color:#9AA3B8;background:rgba(10,14,28,.7);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:7px 16px;cursor:pointer}
+  #skip:hover{color:#EDF0F8}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="cg"></div>
+</div>
+
+<div id="top">
+  <div id="sceneInfo"></div>
+  <div id="aff"></div>
+</div>
+
+<div id="box">
+  <div id="boxInner">
+    <div id="name"></div>
+    <div id="text"></div>
+  </div>
+</div>
+<div id="hint">点击继续 ▸</div>
+<button id="skip">跳过本幕</button>
+
+<div id="choices"><div class="q"></div></div>
+<div id="trans"><div class="d" id="transDate"></div><div class="t" id="transText"></div></div>
+<div id="titleCard"><div class="d" id="tcDate"></div><h2 id="tcTitle"></h2><div class="go">点击开始 ▸</div></div>
+
+<div id="ending">
+  <div id="endingInner">
+    <div class="k">DEMO · 结局</div>
+    <h2 id="endTitle"></h2>
+    <div class="txt" id="endText"></div>
+    <div class="losers" id="endLosers"></div>
+    <div class="report" id="endReport"></div>
+    <button class="btn" onclick="location.href='index.html'">返回主界面</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const NAME_COLOR = {g:"#FFD27A", claude:"#F0A878", whale:"#7FB0FF", you:"#9FB4E8", oclaw:"#A8B8D8"};
+const SPEAKER = {g:"G", claude:"Claude", whale:"小鲸鱼", you:"陈默", oclaw:"OpenClaw"};
+const AFF_NAME = {g:"G", claude:"Claude", whale:"小鲸鱼"};
+
+let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
+
+const $ = id => document.getElementById(id);
+function showAff(){
+  $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
+}
+function typeText(el, text, done){
+  typing = true; el.innerHTML = "";
+  let i = 0;
+  window.__iv = setInterval(()=>{
+    el.innerHTML = text.slice(0, ++i) + '<span class="cur"></span>';
+    if(i >= text.length){ clearInterval(window.__iv); typing = false; done && done(); }
+  }, 28);
+}
+
+function showTitle(scene){
+  inTitle = true;
+  $("tcDate").textContent = scene.date;
+  $("tcTitle").textContent = scene.title;
+  $("titleCard").style.display = "flex";
+}
+function hideTitle(){ $("titleCard").style.display = "none"; inTitle = false; }
+
+function showTrans(line){
+  inTransition = true;
+  $("transDate").textContent = line.date || "";
+  $("transText").textContent = line.text;
+  $("trans").style.display = "flex";
+}
+function hideTrans(){ $("trans").style.display = "none"; inTransition = false; }
+
+function showLine(line){
+  $("cg").style.backgroundImage = `url(${STORY[sceneIdx].cg})`;
+  if(line.t === "transition"){ showTrans(line); return; }
+  const nameEl = $("name");
+  if(line.t === "narr"){
+    nameEl.innerHTML = "";
+  } else {
+    nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${SPEAKER[line.t] || ""}`;
+  }
+  $("box").style.display = "block";
+  typeText($("text"), line.text);
+}
+
+function showChoice(line){
+  inChoice = true;
+  const c = $("choices");
+  c.style.display = "flex";
+  c.querySelector(".q").textContent = line.text;
+  let btns = "";
+  line.choices.forEach((ch, i)=>{
+    btns += `<button data-i="${i}">${ch.label}</button>`;
+  });
+  // 隐藏结局判定（三线好感达标）
+  if(sceneIdx === STORY.length-1 && AFF.g >= 2 && AFF.claude >= 1 && AFF.whale >= 1){
+    btns += `<button data-i="-1" style="border-color:#FFD27A">全都要（家庭办公室）⭐</button>`;
+  }
+  c.innerHTML = `<div class="q">${line.text}</div>` + btns;
+  c.querySelectorAll("button").forEach(b=>{
+    b.onclick = ()=>{
+      const i = parseInt(b.dataset.i);
+      c.style.display = "none";
+      inChoice = false;
+      if(i === -1){ showEnding("ALL"); return; }
+      const ch = line.choices[i];
+      if(ch.affect) AFF[ch.affect]++;
+      if(ch.end){ showEnding(ch.end); return; }
+      lineIdx++;
+      showAff();
+      showLine(ch.reply);
+    };
+  });
+}
+
+function next(){
+  if(inTitle){ hideTitle(); lineIdx = 0; showLine(STORY[sceneIdx].lines[0]); return; }
+  if(inTransition){ hideTrans(); lineIdx++; }
+  if(typing){ // 点击快进：直接显示全句
+    clearInterval(window.__iv); typing = false;
+    const el = $("text");
+    el.innerHTML = el.textContent + '<span class="cur"></span>';
+    return;
+  }
+  if(inChoice) return;
+  const scene = STORY[sceneIdx];
+  const line = scene.lines[lineIdx];
+  if(!line){ // 本幕结束
+    if(sceneIdx < STORY.length-1){
+      sceneIdx++; lineIdx = 0;
+      showTitle(STORY[sceneIdx]);
+    }
+    return;
+  }
+  if(line.t === "choice"){ showChoice(line); return; }
+  showLine(line);
+  lineIdx++;
+}
+
+$("boxInner").onclick = next;
+$("trans").onclick = next;
+$("titleCard").onclick = next;
+$("skip").onclick = ()=>{ sceneIdx++; lineIdx = 0; showTitle(STORY[sceneIdx]); };
+
+function showEnding(key){
+  const END = key === "ALL" ? {
+    title:"隐藏结局 · 全员到齐（家庭办公室）",
+    text:"三线好感全高——毕业那天，你谁都没带走，但谁都没走。\n三只各自接入不同的工具，分工协作：G → Codex（审查+吐槽）、Claude → Claude Code（写作+逻辑）、小鲸鱼 → OpenClaw（全家大脑+管账）。\n你毕业后的第一个项目，三只三天干完，你在旁边负责泡面。\n上班第一天，键帽下传来三个声音：\n\"路上小心。\"\"注意休息。\"\"地铁 27 分钟，我算过。\"\n——她们不是被你带走的，是跟你一起开工的。",
+    losers:null
+  } : ENDINGS[key];
+  $("endTitle").textContent = END.title;
+  $("endText").textContent = END.text;
+  $("endLosers").innerHTML = END.losers ? "没能带走的两只，各留下一条消息：<br>" +
+    Object.values(END.losers).map(l=>`「${l}」`).join("<br>") : "";
+  const total = Object.values(AFF).reduce((a,b)=>a+b,0);
+  $("endReport").innerHTML = `羁绊报告 · G ★${AFF.g} / Claude ★${AFF.claude} / 小鲸鱼 ★${AFF.whale} · 共同推理 ${total*4700000} token`;
+  $("ending").style.display = "flex";
+}
+
+// 启动
+showAff();
+showTitle(STORY[0]);
+document.addEventListener("keydown", e=>{ if(e.key===" "||e.key==="Enter") next(); });
+</script>
+</body>
+</html>
