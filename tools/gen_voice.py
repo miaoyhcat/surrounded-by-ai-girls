@@ -6,6 +6,7 @@
 用法：python tools/gen_voice.py [--start N] [--only g|whale]
 """
 import os, re, sys, time, wave, subprocess, argparse
+import numpy as np
 
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,11 +17,12 @@ os.makedirs(OUT_DIR, exist_ok=True)
 SEEDS = {"g": 42, "whale": 888}
 
 def extract_lines():
-    """用正则提取所有 {t:"g"/"whale", text:"..."} 台词（与 game.html 编号顺序一致）"""
+    """用正则提取所有 {t:"g"/"whale", text:"..."} 台词（与 game.html 编号顺序一致）
+    用 (?<!reply:) 排除 choice 选项里的 reply 台词（游戏内不播放，避免编号错位）"""
     with open(DATA_JS, "r", encoding="utf-8") as f:
         src = f.read()
     lines = []
-    for m in re.finditer(r'\{t:"(g|whale)",\s*text:"((?:[^"\\]|\\.)*)"\}', src):
+    for m in re.finditer(r'(?<!reply:)\{t:"(g|whale)",\s*text:"((?:[^"\\]|\\.)*)"\}', src):
         t, text = m.group(1), m.group(2)
         text = text.replace('\\"', '"').replace("\\」", "」").replace("\\「", "「")
         lines.append((t, text))
@@ -51,9 +53,12 @@ def split_long(text, limit=70):
     return [s for s in out if s.strip()]
 
 def save_wav(data, path):
+    """data: float32 (-1~1) 或 int16 → int16 wav"""
+    if data.dtype == np.float32 or data.dtype == np.float64:
+        data = (data * 32767).clip(-32768, 32767).astype(np.int16)
     with wave.open(path, "wb") as wf:
         wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(24000)
-        wf.writeframes(data.astype("<i2").tobytes())
+        wf.writeframes(data.tobytes())
 
 def wav_to_mp3(wav_path, mp3_path):
     subprocess.run(["ffmpeg", "-y", "-v", "quiet", "-i", wav_path, "-codec:a", "libmp3lame",
@@ -67,7 +72,6 @@ def main():
     ap.add_argument("--count", type=int, default=99999)
     args = ap.parse_args()
 
-    import numpy as np
     import ChatTTS
     import random
 
@@ -95,7 +99,14 @@ def main():
             continue  # 已生成
         cleaned = clean(text)
         if not cleaned:
-            print(f"[{idx}] {fname} EMPTY, 原文: {text[:40]}"); continue
+            # 纯舞台指示行（如"（答了一篇模板，全是套话）"）：生成 0.5s 静音占位，保持编号对齐
+            print(f"[{idx}] {fname} 纯指示，生成静音占位: {text[:30]}")
+            silent = np.zeros(int(24000 * 0.5), dtype=np.int16)
+            tmp = os.path.join(OUT_DIR, fname.replace(".mp3", ".wav"))
+            save_wav(silent.astype(np.float32), tmp)
+            wav_to_mp3(tmp, fpath)
+            done += 1
+            continue
         # 固定音色种子
         random.seed(SEEDS[t])
         spk = chat.sample_random_speaker()

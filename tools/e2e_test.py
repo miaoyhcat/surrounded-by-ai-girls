@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """《完蛋，我被AI娘包围了》端到端功能测试（Playwright）
-覆盖：开始游戏 / 名字 / 打字推进 / 自动播放 / 快进 / 历史回档 / 存档读档 / 设置面板 / BGM/配音开关 / 选项分支 / 返回主界面
+覆盖：开始游戏 / 名字 / 打字推进 / 自动播放 / 快进 / 历史回档 / 存档读档 / 设置面板 / BGM开关 / 选项分支 / 返回主界面
 """
 import json, sys
 from playwright.sync_api import sync_playwright
@@ -109,9 +109,6 @@ with sync_playwright() as p:
     pg.click("#sBgm")
     bgm_off = pg.evaluate("localStorage.getItem('aigirls_settings')")
     check("BGM 开关生效", '"bgm":false' in bgm_off, bgm_off[:60])
-    pg.click("#sVoice")
-    voice_off = pg.evaluate("localStorage.getItem('aigirls_settings')")
-    check("配音开关生效", '"voice":false' in voice_off)
     pg.evaluate("document.querySelector('#settingsClose').click()")
     check("设置面板关闭", not pg.is_visible("#settingsPanel"))
 

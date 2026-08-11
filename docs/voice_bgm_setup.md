@@ -1,25 +1,18 @@
-# 配音 / BGM 接入说明（v4.1）
+# 配音 / BGM 接入说明（v4.1 → v4.2）
 
-> 2026-08-11 · 为 exe 版加入：角色配音（ChatTTS 本地生成）+ 背景音乐（魔王魂免费钢琴曲）+ 设置面板
+> 2026-08-11 · v4.2 更新：**配音已砍**（试听后音色不稳定，有男有女且非少女音），
+> BGM / 设置面板 / 自动播放减速 / 历史回档 / 剧情衔接 全部保留。
 
-## 角色配音（ChatTTS）
+## 角色配音（ChatTTS）— ❌ 已砍
 
-- 模型：ChatTTS 0.2.5（开源，中文自然度高，带语气/停顿，非播音腔）
-- 音色：固定随机种子 → 固定音色
-  - GPT娘：seed=42（活泼，语速 [speed_5]）
-  - 鲸鱼娘：seed=888（冷静，语速 [speed_4]）
-- 数量：**275 条** = GPT娘 192 + 鲸鱼娘 83（g 台词 189 + whale 台词 73 + 补齐）
-- 位置：`src/web/demo/voice/`（g_N.mp3 / whale_N.mp3，128kbps mp3，共 17MB）
-- 编号规则：按 STORY 遍历顺序，g / whale 各自从 1 递增（与 `game.html` 的 `buildVoiceMap()` 一致）
-- 生成脚本：`tools/gen_voice.py`（GPU 生成约 22 分钟 / 278 条）
-  - 文本清洗：去掉 `(小声)` `（纸条）` 等舞台指示、`「」` 引号；保留 `……` `——` 停顿
-  - 断点续跑：`python tools/gen_voice.py --start N`
-- 依赖环境（踩坑记录）：
-  - Python 3.12 + torch 2.9.1+cu128（RTX 5060，Blackwell 需 torch≥2.7）
-  - torch 需从阿里镜像下载 wheel 本地安装：`mirrors.aliyun.com/pytorch-wheels/cu128/`
-  - torchaudio / torchvision 必须同版本 `+cu128` 且用 `--no-deps` 安装（防止 pip 降级 torch）
-  - transformers 必须 **4.46.3 以下**（4.49+ 的 modeling_utils 会 import torchvision → 本机 torchvision C 扩展 ABI 崩）
-  - 模型下载走 hf-mirror：`HF_ENDPOINT=https://hf-mirror.com`
+- 结论：ChatTTS 0.2.5 的 `sample_random_speaker()` 音色不可控（seed 不保证确定性），
+  生成结果有男有女、音色跳跃、无少女音 → **用户决定砍掉配音**
+- 游戏内：`game.html` 配音逻辑（playVoice / VOICE_MAP / 设置项）已全部移除
+- 文件：`voice/` 目录已删除（不再打包）
+- 保留：`tools/gen_voice.py` 生成脚本（若日后找到可控音色的方案可复用）
+  - 注意：该脚本的 `save_wav` 已修复 int16 转换（ChatTTS 返回 -1~1 浮点，需 ×32767）
+  - 注意：`extract_lines` 用 `(?<!reply:)` 排除 choice reply，编号与游戏 `buildVoiceMap` 对齐
+  - 若恢复配音：需要可控音色的方案（如 IndexTTS-2 / CosyVoice / 声音克隆 + 固定音色）
 
 ## 背景音乐（BGM）
 
@@ -32,7 +25,6 @@
 ## 设置面板（game.html 内菜单 → ⚙ 设置）
 
 - 背景音乐：开/关 + 音量滑条 + 曲目切换（4 首）
-- 角色配音：开/关（GPT娘 / 鲸鱼娘）
 - 设置持久化：localStorage `aigirls_settings`
 - BGM 自动播放策略：首次用户点击（标题卡/任意推进）后启动
 
@@ -40,7 +32,6 @@
 
 - 打字：2 字/26ms → **1 字/34ms**
 - 行间隔：2400ms → **3600ms**；转场：2600ms → **4200ms**
-- 配音开启时：自动播放**等当前语音播完**再进下一行（+700ms 缓冲）
 
 ## 历史记录回档
 

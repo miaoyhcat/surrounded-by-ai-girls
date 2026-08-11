@@ -143,7 +143,6 @@
       <option value="piano38">曲目 Ⅲ</option>
       <option value="piano36">曲目 Ⅳ</option>
     </select></div></div>
-    <div class="row"><label>角色配音<span class="sub">GPT娘 / 鲸鱼娘 · 本地语音</span></label><div class="ctl"><button class="toggle" id="sVoice">开</button></div></div>
   </div>
   <button class="close" id="settingsClose">关 闭</button>
 </div>
@@ -189,24 +188,11 @@ const SAVE_KEY = "aigirls_save_v1";
 let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
 let autoMode = false, skipMode = false, autoTimer = null, history = [];
 
-// ─── 设置（BGM / 配音） ───
+// ─── 设置（BGM） ───
 const SET_KEY = "aigirls_settings";
-let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"piano41", voice:true}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
+let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"piano41"}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
 function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
 let bgmAudio = new Audio(), bgmStarted = false;
-let voiceAudio = new Audio(), voiceKey = null;
-
-// 配音文件映射：遍历 STORY，给 g / whale 台词按出现顺序编号
-function buildVoiceMap(){
-  const m = {}; let gi = 0, wi = 0;
-  STORY.forEach((s,si)=>{ s.lines.forEach((l,li)=>{
-    if(l.t === "g"){ gi++; m[si+"_"+li] = "g_"+gi; }
-    else if(l.t === "whale"){ wi++; m[si+"_"+li] = "whale_"+wi; }
-  });});
-  return m;
-}
-const VOICE_MAP = buildVoiceMap();
-function getVoiceFile(si, li){ const k = VOICE_MAP[si+"_"+li]; return k ? "voice/"+k+".mp3" : null; }
 
 function applyBgm(){
   bgmAudio.src = "audio/bgm_" + settings.bgmTrack + ".mp3";
@@ -219,18 +205,6 @@ function ensureBgm(){
   bgmStarted = true;
   applyBgm();
 }
-function playVoice(file){
-  if(!settings.voice || !file){ voiceKey = null; return; }
-  voiceKey = file;
-  voiceAudio.src = file;
-  voiceAudio.volume = 0.95;
-  voiceAudio.play().catch(()=>{ voiceKey = null; });
-}
-voiceAudio.addEventListener("ended", ()=>{
-  const wasAuto = autoMode && voiceKey && !inChoice && !inTitle;
-  voiceKey = null;
-  if(wasAuto){ clearTimeout(autoTimer); autoTimer = setTimeout(()=>{ next(); }, 700); }
-});
 
 const $ = id => document.getElementById(id);
 function showAff(){
@@ -278,7 +252,6 @@ function showLine(line){
   else { const spk = line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${spk}`; }
   $("box").style.display = "block";
   pushHistory(line);
-  playVoice(getVoiceFile(sceneIdx, lineIdx));
   typeText($("text"), displayText(line.text), scheduleAuto);
 }
 
@@ -312,9 +285,6 @@ function next(){
   if(inTitle){ hideTitle(); lineIdx = 0; showLine(STORY[sceneIdx].lines[0]); return; }
   if(inTransition){ hideTrans(); lineIdx++; }
   if(typing){ clearInterval(window.__iv); typing = false; const el = $("text"); el.innerHTML = el.textContent + '<span class="cur"></span>'; return; }
-  if(voiceKey && !autoMode){ // 手动点击：跳过当前语音
-    voiceAudio.pause(); voiceAudio.currentTime = 0; voiceKey = null;
-  }
   if(inChoice) return;
   const scene = STORY[sceneIdx];
   const line = scene.lines[lineIdx];
@@ -334,7 +304,6 @@ function next(){
 function scheduleAuto(){
   if(!autoMode || inChoice) return;
   clearTimeout(autoTimer);
-  if(voiceKey){ return; } // 语音播放中：由 ended 事件接管，播完再进下一行
   autoTimer = setTimeout(()=>{ next(); }, inTransition ? 4200 : 3600);
 }
 
@@ -375,8 +344,6 @@ function renderSettings(){
   $("sBgm").classList.toggle("on", settings.bgm);
   $("sBgmVol").value = settings.bgmVol;
   $("sBgmTrack").value = settings.bgmTrack;
-  $("sVoice").textContent = settings.voice ? "开" : "关";
-  $("sVoice").classList.toggle("on", settings.voice);
 }
 $("mSet").onclick = ()=>{ toggleMenu(true); renderSettings(); $("settingsPanel").style.display = "flex"; };
 $("settingsClose").onclick = ()=>{ $("settingsPanel").style.display = "none"; };
@@ -389,10 +356,6 @@ $("sBgmVol").oninput = (e)=>{
 };
 $("sBgmTrack").onchange = (e)=>{
   settings.bgmTrack = e.target.value; saveSettings(); applyBgm();
-};
-$("sVoice").onclick = ()=>{
-  settings.voice = !settings.voice; saveSettings(); renderSettings();
-  if(!settings.voice){ voiceAudio.pause(); voiceAudio.currentTime = 0; voiceKey = null; }
 };
 
 // ─── 历史记录（点击条目可回档） ───
@@ -427,7 +390,6 @@ function jumpBack(i){
   else { const spk = l.t === "you" ? PLAYER_NAME : (SPEAKER[l.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[l.t]}"></span>${spk}`; }
   $("box").style.display = "block";
   $("text").innerHTML = displayText(l.text) + '<span class="cur"></span>';
-  playVoice(getVoiceFile(sceneIdx, h.line));
   autoSave();
 }
 $("histClose").onclick = ()=>{ $("history").style.display = "none"; };
