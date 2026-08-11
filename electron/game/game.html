@@ -218,6 +218,7 @@ function pushHistory(line){
   if(history.length > 500) history.shift();
 }
 function typeText(el, text, done){
+  clearInterval(window.__iv); // 清理上一个打字定时器（防止切场景/读档后残留定时器继续写旧文本）
   typing = true; el.innerHTML = "";
   let i = 0;
   window.__iv = setInterval(()=>{
