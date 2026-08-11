@@ -262,7 +262,7 @@ function showChoice(line){
   c.style.display = "flex";
   let btns = "";
   line.choices.forEach((ch,i)=>{ btns += `<button data-i="${i}">${ch.label}</button>`; });
-  if(sceneIdx === STORY.length-1 && AFF.g >= 2 && AFF.claude >= 1 && AFF.whale >= 1){
+  if(STORY[sceneIdx].id === "s7" && AFF.g >= 2 && AFF.claude >= 1 && AFF.whale >= 1){
     btns += `<button data-i="-1" style="border-color:#FFD27A">全都要（家庭办公室）⭐</button>`;
   }
   c.innerHTML = `<div class="q">${displayText(line.text)}</div>` + btns;
@@ -270,7 +270,7 @@ function showChoice(line){
     b.onclick = ()=>{
       const i = parseInt(b.dataset.i);
       c.style.display = "none"; inChoice = false;
-      if(i === -1){ showEnding("ALL"); return; }
+      if(i === -1){ jumpScene("s7a"); return; }
       const ch = line.choices[i];
       if(ch.affect) AFF[ch.affect]++;
       if(ch.end){
@@ -294,8 +294,6 @@ function next(){
   const scene = STORY[sceneIdx];
   const line = scene.lines[lineIdx];
   if(!line){
-    const scene = STORY[sceneIdx];
-    if(scene.ending){ showEnding(scene.ending); return; } // 支线结束 → 结局
     if(sceneIdx < STORY.length-1){
       sceneIdx++; lineIdx = 0; autoSave();
       showTitle(STORY[sceneIdx]);
