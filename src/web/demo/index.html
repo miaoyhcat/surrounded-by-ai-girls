@@ -8,9 +8,11 @@
   *{margin:0;padding:0;box-sizing:border-box}
   body{
     font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
-    color:#1C2333;overflow:hidden;user-select:none;
+    color:#1C2333;overflow:hidden;user-select:none;background-color:#F5F3EE;
+  }
+  .hallbg{
+    position:fixed;inset:0;z-index:0;
     background:url("assets/main_hall_bg.png") center/contain no-repeat;
-    background-color:#F5F3EE;
   }
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;
@@ -34,6 +36,7 @@
 </style>
 </head>
 <body>
+<div class="hallbg" aria-hidden="true"></div>
 <div class="panel">
   <span class="kicker">KEYBOARD COZY GAME</span>
   <h1>完蛋，我被AI娘包围了<span class="en">SURROUNDED BY AI GIRLS · DEMO</span></h1>
