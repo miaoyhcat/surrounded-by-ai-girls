@@ -76,7 +76,7 @@
   /* 存档面板 */
   #savePanel{position:fixed;inset:0;z-index:39;background:rgba(4,7,14,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
   #savePanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:20px}
-  #slots{display:flex;flex-direction:column;gap:10px;width:min(520px,90vw)}
+  #slots{display:flex;flex-direction:column;gap:10px;width:min(520px,90vw);max-height:62vh;overflow-y:auto;padding-right:6px}
   #slots .slot{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px 18px;cursor:pointer}
   #slots .slot:hover{background:rgba(255,255,255,.12)}
   #slots .slot .info{font-size:12.5px;color:#C9D0E0;letter-spacing:.06em}
@@ -124,6 +124,7 @@
 <div id="menuPanel">
   <button id="mAuto">自动播放</button>
   <button id="mSkip">快进（跳过已读）</button>
+  <button id="mSkipTo">⏩ 快进到选项</button>
   <button id="mSet">⚙ 设 置</button>
   <button id="mHist">历史记录</button>
   <button id="mSave">存档</button>
@@ -323,7 +324,7 @@ function next(){
   if(line.t === "choice"){ showChoice(line); return; }
   showLine(line);
   lineIdx++;
-  autoSave();
+  if(!skipToChoice) autoSave(); // 快进到选项时减少写盘，停下时统一保存
 }
 
 function autoDelay(){
@@ -360,10 +361,35 @@ $("mAuto").onclick = ()=>{
   if(autoMode && !inChoice && !inTitle) scheduleAuto();
 };
 $("mSkip").onclick = ()=>{
-  skipMode = !skipMode; autoMode = false;
+  skipMode = !skipMode; autoMode = false; skipToChoice = false;
   $("mSkip").classList.toggle("on", skipMode);
   $("mAuto").classList.remove("on");
+  $("mSkipTo").classList.remove("on");
 };
+
+// ─── 快进到下一个选项（停下） ───
+let skipToChoice = false;
+$("mSkipTo").onclick = ()=>{
+  if(skipToChoice){ skipToChoice = false; $("mSkipTo").classList.remove("on"); return; }
+  skipToChoice = true; autoMode = false; skipMode = true;
+  $("mSkipTo").classList.add("on");
+  $("mAuto").classList.remove("on");
+  $("mSkip").classList.remove("on");
+  toggleMenu(true);
+  runSkipToChoice();
+};
+function runSkipToChoice(){
+  if(!skipToChoice) return;
+  if(inChoice){
+    // 到达选项：停下
+    skipToChoice = false; skipMode = false;
+    $("mSkipTo").classList.remove("on");
+    autoSave();
+    return;
+  }
+  next();
+  setTimeout(runSkipToChoice, 8);
+}
 $("mHist").onclick = ()=>{ showHistory(); };
 $("mHome").onclick = ()=>{ location.href = "index.html"; };
 
@@ -457,9 +483,9 @@ function renderSlots(mode){
   $("saveTitle").textContent = mode === "save" ? "存 档（点击槽位保存）" : "读 档（点击槽位读取）";
   const box = $("slots");
   let html = "";
-  for(let i=0;i<3;i++){
+  for(let i=0;i<30;i++){
     const raw = localStorage.getItem(SAVE_KEY + "_" + i);
-    const info = raw ? (()=>{ const d = JSON.parse(raw); return `<span class="t">${d.t}</span> 第${d.scene+1}幕 · ${STORY[d.scene].title.slice(0,14)}`; })() : "空槽位";
+    const info = raw ? (()=>{ const d = JSON.parse(raw); return `<span class="t">${d.t}</span> 第${d.scene+1}幕 · ${(STORY[d.scene].title||"").slice(0,14)}`; })() : "空槽位";
     html += `<div class="slot" data-i="${i}"><div class="info">槽位 ${i+1}<br>${info}</div><div class="act">${mode === "save" ? "保存" : "读取"}</div></div>`;
   }
   const auto = localStorage.getItem(SAVE_KEY + "_auto");
