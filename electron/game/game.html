@@ -138,10 +138,10 @@
     <div class="row"><label>背景音乐<span class="sub">温柔钢琴曲 · 循环播放</span></label><div class="ctl"><button class="toggle" id="sBgm">开</button></div></div>
     <div class="row"><label>音乐音量</label><div class="ctl"><input type="range" id="sBgmVol" min="0" max="100" value="35"></div></div>
     <div class="row"><label>切换曲目</label><div class="ctl"><select id="sBgmTrack">
-      <option value="piano41">曲目 Ⅰ · 温馨钢琴</option>
-      <option value="piano40">曲目 Ⅱ</option>
-      <option value="piano38">曲目 Ⅲ</option>
-      <option value="piano36">曲目 Ⅳ</option>
+      <option value="acoustic54">曲目 Ⅰ · 温馨木吉他</option>
+      <option value="acoustic53">曲目 Ⅱ · 晨光</option>
+      <option value="healing16">曲目 Ⅲ · 治愈时光</option>
+      <option value="healing14">曲目 Ⅳ · 安心</option>
     </select></div></div>
     <div class="row"><label>自动播放速度</label><div class="ctl"><select id="sAutoSpeed">
       <option value="1">慢</option>
@@ -202,7 +202,7 @@ let autoMode = false, skipMode = false, autoTimer = null, history = [];
 
 // ─── 设置（BGM / 自动播放速度） ───
 const SET_KEY = "aigirls_settings";
-let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"piano41", autoSpeed:2}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
+let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"acoustic54", autoSpeed:2}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
 function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
 let bgmAudio = new Audio(), bgmStarted = false;
 
@@ -439,6 +439,7 @@ function saveSlot(n){
 function loadSlot(n){
   const raw = localStorage.getItem(n === -1 ? SAVE_KEY + "_auto" : SAVE_KEY + "_" + n);
   if(!raw) return false;
+  ensureBgm(); // 读档/继续后启动 BGM
   const d = JSON.parse(raw);
   sceneIdx = d.scene; lineIdx = d.line; AFF = d.aff || AFF; history = d.hist || [];
   showAff();

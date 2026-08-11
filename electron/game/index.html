@@ -103,10 +103,10 @@
     <div class="row"><label>背景音乐<span class="sub">温柔钢琴曲 · 循环播放</span></label><div class="ctl"><button class="toggle" id="sBgm">开</button></div></div>
     <div class="row"><label>音乐音量</label><div class="ctl"><input type="range" id="sBgmVol" min="0" max="100" value="35"></div></div>
     <div class="row"><label>切换曲目</label><div class="ctl"><select id="sBgmTrack">
-      <option value="piano41">曲目 Ⅰ · 温馨钢琴</option>
-      <option value="piano40">曲目 Ⅱ</option>
-      <option value="piano38">曲目 Ⅲ</option>
-      <option value="piano36">曲目 Ⅳ</option>
+      <option value="acoustic54">曲目 Ⅰ · 温馨木吉他</option>
+      <option value="acoustic53">曲目 Ⅱ · 晨光</option>
+      <option value="healing16">曲目 Ⅲ · 治愈时光</option>
+      <option value="healing14">曲目 Ⅳ · 安心</option>
     </select></div></div>
     <div class="row other"><label>其 他</label>
       <div class="txt">谨以此游戏献给所有 AI 使用者。<br>非常感谢所有计算机从业人员——没有你们，就没有这个伟大的产物。<br>你们的付出与贡献，带动了全人类的进步。</div>
@@ -157,7 +157,7 @@
 
   // ─── 设置 ───
   const SET_KEY = 'aigirls_settings';
-  const settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:'piano41'}, JSON.parse(localStorage.getItem(SET_KEY)||'{}'));
+  const settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:'acoustic54'}, JSON.parse(localStorage.getItem(SET_KEY)||'{}'));
   function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
   let hallBgm = new Audio(), hallBgmStarted = false;
   function applyBgm(){
