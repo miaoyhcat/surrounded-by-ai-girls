@@ -57,5 +57,17 @@
   </div>
 </div>
 <div class="footer">她们住在你的键盘上 · 2022 — 2026</div>
+<script>
+  const hallName = document.getElementById('hallName');
+  hallName.value = localStorage.getItem('aigirls_name') || '陈默';
+  document.getElementById('hallNameOk').onclick = ()=>{
+    const n = hallName.value.trim() || '陈默';
+    localStorage.setItem('aigirls_name', n);
+    hallName.value = n;
+    const btn = document.getElementById('hallNameOk');
+    btn.textContent = '已保存';
+    setTimeout(()=>{ btn.textContent = '确定'; }, 1200);
+  };
+</script>
 </body>
 </html>
