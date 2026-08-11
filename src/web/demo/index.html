@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完蛋，我被AI娘包围了 · Demo</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    color:#1C2333;overflow:hidden;user-select:none;
+    background:url("assets/main_hall_bg.png") center/cover no-repeat;
+    background-color:#F5F3EE;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.65) 34%,rgba(255,255,255,0) 55%);
+  }
+  .panel{position:fixed;left:clamp(18px,4vw,56px);top:50%;transform:translateY(-50%);z-index:5;width:min(300px,40vw);display:flex;flex-direction:column;gap:14px}
+  .kicker{align-self:flex-start;font-size:10.5px;letter-spacing:.4em;color:#6B7385;border:1px solid rgba(28,35,51,.12);border-radius:99px;padding:6px 16px;background:rgba(255,255,255,.78)}
+  h1{font-size:clamp(24px,3.4vw,38px);font-weight:800;letter-spacing:.08em;line-height:1.35}
+  h1 .en{display:block;font-size:10px;letter-spacing:.34em;color:#6B7385;font-weight:400;margin-top:6px}
+  .menu{margin-top:6px;display:flex;flex-direction:column;gap:10px}
+  .menu button{
+    font-family:inherit;text-align:left;font-size:14px;letter-spacing:.2em;color:#1C2333;
+    background:rgba(255,255,255,.78);border:1px solid rgba(28,35,51,.12);border-radius:12px;
+    padding:13px 20px;cursor:pointer;transition:all .22s ease;backdrop-filter:blur(8px);
+  }
+  .menu button .en{display:block;font-size:9px;letter-spacing:.26em;color:#6B7385;margin-top:4px}
+  .menu button:hover{transform:translateX(5px);border-color:rgba(28,35,51,.3)}
+  .menu button.hl{border-left:3px solid #4D94FF}
+  .footer{position:fixed;left:clamp(18px,4vw,56px);bottom:22px;z-index:5;font-size:10.5px;letter-spacing:.26em;color:#6B7385}
+  .badge{position:fixed;right:20px;top:18px;z-index:6;font-size:11px;letter-spacing:.2em;color:#6B7385;background:rgba(255,255,255,.7);border:1px solid rgba(28,35,51,.12);border-radius:99px;padding:6px 14px}
+</style>
+</head>
+<body>
+<div class="panel">
+  <span class="kicker">KEYBOARD COZY GAME</span>
+  <h1>完蛋，我被AI娘包围了<span class="en">SURROUNDED BY AI GIRLS · DEMO</span></h1>
+  <nav class="menu">
+    <button class="hl" onclick="location.href='game.html'">开始游戏<span class="en">START · 序章至高铁（6 幕）</span></button>
+    <button onclick="alert('Demo 版暂未开放，正式版有：回忆相册 / 羁绊图鉴 / 存档')">回忆相册<span class="en">ALBUM · 开发中</span></button>
+    <button onclick="alert('Demo 版暂未开放')">设置<span class="en">SETTINGS</span></button>
+  </nav>
+</div>
+<div class="badge">DEMO v0.1 · 点击小人可互动</div>
+<div class="footer">她们住在你的键盘上 · 2022 — 2026</div>
+</body>
+</html>
