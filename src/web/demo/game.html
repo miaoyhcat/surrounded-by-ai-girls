@@ -200,6 +200,7 @@ const SAVE_KEY = "aigirls_save_v1";
 
 let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
 let autoMode = false, skipMode = false, autoTimer = null, history = [];
+let currentBg = null; // 行级 CG 覆盖（line.cg 设置后持续生效，直到再次设置）
 
 // ─── 设置（BGM / 自动播放速度） ───
 const SET_KEY = "aigirls_settings";
@@ -267,7 +268,8 @@ function showTrans(line){
 function hideTrans(){ $("trans").style.display = "none"; inTransition = false; }
 
 function showLine(line){
-  $("cg").style.backgroundImage = `url(${STORY[sceneIdx].cg})`;
+  if(line.cg !== undefined){ currentBg = line.cg; }
+  $("cg").style.backgroundImage = `url(${currentBg || STORY[sceneIdx].cg})`;
   if(line.t === "transition"){ showTrans(line); return; }
   const nameEl = $("name");
   if(line.t === "narr") nameEl.innerHTML = "";
@@ -441,7 +443,8 @@ function jumpBack(i){
   sceneIdx = h.scene;
   const s = STORY[sceneIdx];
   const l = s.lines[h.line];
-  $("cg").style.backgroundImage = `url(${s.cg})`;
+  currentBg = (l.cg !== undefined) ? l.cg : null; // 回档时恢复行级 CG 状态
+  $("cg").style.backgroundImage = `url(${currentBg || s.cg})`;
   if(l.t === "transition"){ lineIdx = h.line; showTrans(l); return; }
   if(l.t === "choice"){ lineIdx = h.line; showChoice(l); return; }
   // 普通行：直接显示全文，进度定位到该行之后
@@ -472,6 +475,7 @@ function loadSlot(n){
   $("savePanel").style.display = "none";
   $("ending").style.display = "none";
   const scene = STORY[sceneIdx];
+  currentBg = null; // 读档重置行级 CG
   $("cg").style.backgroundImage = `url(${scene.cg})`;
   const line = scene.lines[Math.min(lineIdx, scene.lines.length-1)];
   if(line.t === "transition"){ showTrans(line); }
