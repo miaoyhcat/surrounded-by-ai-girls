@@ -239,7 +239,7 @@ function hideTitle(){ $("titleCard").style.display = "none"; inTitle = false; }
 function showTrans(line){
   inTransition = true;
   $("transDate").textContent = line.date || "";
-  $("transText").textContent = line.text;
+  $("transText").textContent = displayText(line.text);
   $("trans").style.display = "flex";
   scheduleAuto();
 }
@@ -265,7 +265,7 @@ function showChoice(line){
   if(sceneIdx === STORY.length-1 && AFF.g >= 2 && AFF.claude >= 1 && AFF.whale >= 1){
     btns += `<button data-i="-1" style="border-color:#FFD27A">全都要（家庭办公室）⭐</button>`;
   }
-  c.innerHTML = `<div class="q">${line.text}</div>` + btns;
+  c.innerHTML = `<div class="q">${displayText(line.text)}</div>` + btns;
   c.querySelectorAll("button").forEach(b=>{
     b.onclick = ()=>{
       const i = parseInt(b.dataset.i);
@@ -449,7 +449,7 @@ function showEnding(key){
     losers:null
   } : ENDINGS[key];
   $("endTitle").textContent = END.title;
-  $("endText").textContent = END.text;
+  $("endText").textContent = displayText(END.text);
   $("endLosers").innerHTML = END.losers ? "没能带走的两只，各留下一条消息：<br>" + Object.values(END.losers).map(l=>`「${l}」`).join("<br>") : "";
   const total = Object.values(AFF).reduce((a,b)=>a+b,0);
   $("endReport").innerHTML = `羁绊报告 · G ★${AFF.g} / Claude ★${AFF.claude} / 小鲸鱼 ★${AFF.whale} · 共同推理 ${total*4700000} token`;
