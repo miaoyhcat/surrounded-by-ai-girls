@@ -549,6 +549,8 @@ const qp = new URLSearchParams(location.search);
 const qContinue = qp.get("continue") === "1";
 const qNew = qp.get("new") === "1";
 if(qNew){ localStorage.removeItem(SAVE_KEY + "_auto"); }
+// 去掉 URL 参数，防止改名等 reload 时重复清档（?new=1）或重复续档
+if(qNew || qContinue){ window.history.replaceState(null, "", location.pathname); }
 const auto = localStorage.getItem(SAVE_KEY + "_auto");
 if(qContinue && auto){
   // 主界面「继续游戏」：直接读最近一次自动存档
