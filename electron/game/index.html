@@ -31,6 +31,7 @@
   .menu button .en{display:block;font-size:9px;letter-spacing:.26em;color:#6B7385;margin-top:4px}
   .menu button:hover{transform:translateX(5px);border-color:rgba(28,35,51,.3)}
   .menu button.hl{border-left:3px solid #4D94FF}
+  .menu button#btnContinue{display:none;border-left:3px solid #FFB84D}
   .nameRow{display:flex;align-items:center;gap:10px;margin-top:4px}
   .nameRow .nl{font-size:11.5px;letter-spacing:.2em;color:#6B7385}
   .nameRow input{font-family:inherit;font-size:14px;letter-spacing:.12em;color:#1C2333;background:rgba(255,255,255,.85);border:1px solid rgba(28,35,51,.18);border-radius:9px;padding:9px 14px;width:130px;outline:none}
@@ -38,6 +39,34 @@
   .nameRow button{font-family:inherit;font-size:12px;letter-spacing:.18em;color:#fff;background:#1C2333;border:none;border-radius:9px;padding:9px 18px;cursor:pointer}
   .nameRow button:hover{background:#2A3348}
   .footer{position:fixed;left:clamp(18px,4vw,56px);bottom:22px;z-index:5;font-size:10.5px;letter-spacing:.26em;color:#6B7385}
+  .bgmBtn{position:fixed;right:22px;bottom:22px;z-index:6;font-family:inherit;font-size:12px;letter-spacing:.14em;color:#1C2333;background:rgba(255,255,255,.8);border:1px solid rgba(28,35,51,.15);border-radius:99px;padding:9px 18px;cursor:pointer}
+  .bgmBtn.off{opacity:.5}
+  /* 回忆相册 */
+  #albumPanel{position:fixed;inset:0;z-index:20;background:rgba(8,11,22,.96);display:none;flex-direction:column;padding:4vh 5vw}
+  #albumPanel h3{font-size:15px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:20px;text-align:center}
+  #albumGrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;max-width:1100px;width:100%;margin:0 auto;padding:4px}
+  #albumGrid .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:14px;overflow:hidden;cursor:default}
+  #albumGrid .card img{width:100%;height:150px;object-fit:cover;display:block}
+  #albumGrid .card .info{padding:10px 14px}
+  #albumGrid .card .info .t{font-size:13px;color:#D5DBEA;letter-spacing:.08em}
+  #albumGrid .card .info .d{font-size:10.5px;color:#7D86A0;letter-spacing:.12em;margin-top:4px}
+  #albumGrid .card.locked{display:flex;align-items:center;justify-content:center;min-height:200px;color:#4A5578;font-size:13px;letter-spacing:.3em}
+  #albumPanel .close{align-self:center;margin-top:18px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+  /* 设置面板 */
+  #settingsPanel{position:fixed;inset:0;z-index:21;background:rgba(8,11,22,.96);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
+  #settingsPanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:24px}
+  #setBox{display:flex;flex-direction:column;gap:16px;width:min(480px,88vw)}
+  #setBox .row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:14px 18px}
+  #setBox .row label{font-size:13.5px;letter-spacing:.12em;color:#C9D0E0}
+  #setBox .row label .sub{display:block;font-size:11px;color:#7D86A0;letter-spacing:.08em;margin-top:4px}
+  #setBox .row .ctl{display:flex;align-items:center;gap:10px}
+  #setBox button.toggle{font-family:inherit;font-size:12.5px;letter-spacing:.15em;color:#EDF0F8;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:8px 20px;cursor:pointer}
+  #setBox button.toggle.on{color:#0B1020;background:#FFD27A;border-color:#FFD27A}
+  #setBox select{font-family:inherit;font-size:12.5px;color:#EDF0F8;background:#1A2138;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 12px;outline:none}
+  #setBox input[type=range]{width:130px;accent-color:#FFD27A}
+  #setBox .row.other{flex-direction:column;align-items:flex-start;gap:8px}
+  #setBox .row.other .txt{font-size:12px;line-height:1.9;color:#8B93A7;letter-spacing:.05em}
+  #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -46,9 +75,10 @@
   <span class="kicker">KEYBOARD COZY GAME</span>
   <h1>完蛋，我被AI娘包围了<span class="en">SURROUNDED BY AI GIRLS · DEMO</span></h1>
   <nav class="menu">
-    <button class="hl" onclick="location.href='game.html'">开始游戏<span class="en">START · 四年的故事</span></button>
-    <button onclick="alert('正式版有：回忆相册 / 羁绊图鉴 / 存档')">回忆相册<span class="en">ALBUM · 开发中</span></button>
-    <button onclick="alert('正式版开放')">设置<span class="en">SETTINGS</span></button>
+    <button id="btnContinue" class="hl">继续游戏<span class="en">CONTINUE · 接着上次的进度</span></button>
+    <button id="btnNew" class="hl" onclick="location.href='game.html?new=1'">开始游戏<span class="en">START · 四年的故事</span></button>
+    <button id="btnAlbum">回忆相册<span class="en">ALBUM · 看过的CG</span></button>
+    <button id="btnSettings">设置<span class="en">SETTINGS</span></button>
   </nav>
   <div class="nameRow">
     <span class="nl">你的名字</span>
@@ -57,7 +87,37 @@
   </div>
 </div>
 <div class="footer">她们住在你的键盘上 · 2022 — 2026</div>
+<button class="bgmBtn" id="hallBgm">🎵 音乐</button>
+
+<!-- 回忆相册 -->
+<div id="albumPanel">
+  <h3>回 忆 相 册</h3>
+  <div id="albumGrid"></div>
+  <button class="close" id="albumClose">关 闭</button>
+</div>
+
+<!-- 设置 -->
+<div id="settingsPanel">
+  <h3>设 置</h3>
+  <div id="setBox">
+    <div class="row"><label>背景音乐<span class="sub">温柔钢琴曲 · 循环播放</span></label><div class="ctl"><button class="toggle" id="sBgm">开</button></div></div>
+    <div class="row"><label>音乐音量</label><div class="ctl"><input type="range" id="sBgmVol" min="0" max="100" value="35"></div></div>
+    <div class="row"><label>切换曲目</label><div class="ctl"><select id="sBgmTrack">
+      <option value="piano41">曲目 Ⅰ · 温馨钢琴</option>
+      <option value="piano40">曲目 Ⅱ</option>
+      <option value="piano38">曲目 Ⅲ</option>
+      <option value="piano36">曲目 Ⅳ</option>
+    </select></div></div>
+    <div class="row other"><label>其 他</label>
+      <div class="txt">谨以此游戏献给所有 AI 使用者。<br>非常感谢所有计算机从业人员——没有你们，就没有这个伟大的产物。<br>你们的付出与贡献，带动了全人类的进步。</div>
+    </div>
+  </div>
+  <button class="close" id="settingsClose">关 闭</button>
+</div>
+
+<script src="data.js"></script>
 <script>
+  // ─── 名字 ───
   const hallName = document.getElementById('hallName');
   hallName.value = localStorage.getItem('aigirls_name') || '陈默';
   document.getElementById('hallNameOk').onclick = ()=>{
@@ -67,6 +127,73 @@
     const btn = document.getElementById('hallNameOk');
     btn.textContent = '已保存';
     setTimeout(()=>{ btn.textContent = '确定'; }, 1200);
+  };
+
+  // ─── 继续游戏（有自动存档才显示） ───
+  const btnContinue = document.getElementById('btnContinue');
+  if(localStorage.getItem('aigirls_save_v1_auto')){
+    btnContinue.style.display = 'block';
+    btnContinue.onclick = ()=>{ location.href = 'game.html?continue=1'; };
+  }
+
+  // ─── 回忆相册 ───
+  const albumPanel = document.getElementById('albumPanel');
+  function renderAlbum(){
+    const unlock = JSON.parse(localStorage.getItem('aigirls_cg_unlocked') || '{}');
+    const grid = document.getElementById('albumGrid');
+    let html = '';
+    STORY.forEach(s=>{
+      const u = unlock[s.id];
+      if(u){
+        html += `<div class="card"><img src="assets/${u.cg}" alt=""><div class="info"><div class="t">${s.title}</div><div class="d">${s.date}</div></div></div>`;
+      } else {
+        html += `<div class="card locked">尚未解锁</div>`;
+      }
+    });
+    grid.innerHTML = html;
+  }
+  document.getElementById('btnAlbum').onclick = ()=>{ renderAlbum(); albumPanel.style.display = 'flex'; };
+  document.getElementById('albumClose').onclick = ()=>{ albumPanel.style.display = 'none'; };
+
+  // ─── 设置 ───
+  const SET_KEY = 'aigirls_settings';
+  const settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:'piano41'}, JSON.parse(localStorage.getItem(SET_KEY)||'{}'));
+  function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
+  let hallBgm = new Audio(), hallBgmStarted = false;
+  function applyBgm(){
+    hallBgm.src = 'audio/bgm_' + settings.bgmTrack + '.mp3';
+    hallBgm.loop = true;
+    hallBgm.volume = settings.bgmVol / 100;
+    if(settings.bgm){ hallBgm.play().catch(()=>{}); } else { hallBgm.pause(); }
+    document.getElementById('hallBgm').textContent = settings.bgm ? '🎵 音乐' : '🔇 静音';
+    document.getElementById('hallBgm').classList.toggle('off', !settings.bgm);
+  }
+  function renderSettings(){
+    document.getElementById('sBgm').textContent = settings.bgm ? '开' : '关';
+    document.getElementById('sBgm').classList.toggle('on', settings.bgm);
+    document.getElementById('sBgmVol').value = settings.bgmVol;
+    document.getElementById('sBgmTrack').value = settings.bgmTrack;
+  }
+  // 首次交互后启动 BGM（浏览器自动播放限制）
+  document.addEventListener('click', function once(){
+    if(!hallBgmStarted){ hallBgmStarted = true; applyBgm(); }
+    document.removeEventListener('click', once);
+  }, {capture:true});
+  document.getElementById('btnSettings').onclick = ()=>{ renderSettings(); document.getElementById('settingsPanel').style.display = 'flex'; };
+  document.getElementById('settingsClose').onclick = ()=>{ document.getElementById('settingsPanel').style.display = 'none'; };
+  document.getElementById('sBgm').onclick = ()=>{
+    settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
+  };
+  document.getElementById('sBgmVol').oninput = (e)=>{
+    settings.bgmVol = parseInt(e.target.value); saveSettings();
+    hallBgm.volume = settings.bgmVol / 100;
+  };
+  document.getElementById('sBgmTrack').onchange = (e)=>{
+    settings.bgmTrack = e.target.value; saveSettings(); applyBgm();
+  };
+  document.getElementById('hallBgm').onclick = ()=>{
+    if(!hallBgmStarted){ hallBgmStarted = true; }
+    settings.bgm = !settings.bgm; saveSettings(); applyBgm();
   };
 </script>
 </body>

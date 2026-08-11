@@ -143,6 +143,18 @@
       <option value="piano38">曲目 Ⅲ</option>
       <option value="piano36">曲目 Ⅳ</option>
     </select></div></div>
+    <div class="row"><label>自动播放速度</label><div class="ctl"><select id="sAutoSpeed">
+      <option value="1">慢</option>
+      <option value="2" selected>标准</option>
+      <option value="3">快</option>
+    </select></div></div>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:8px"><label>其 他</label>
+      <div style="font-size:12px;line-height:1.9;color:#8B93A7;letter-spacing:.05em">
+        谨以此游戏献给所有 AI 使用者。<br>
+        非常感谢所有计算机从业人员——没有你们，就没有这个伟大的产物。<br>
+        你们的付出与贡献，带动了全人类的进步。
+      </div>
+    </div>
   </div>
   <button class="close" id="settingsClose">关 闭</button>
 </div>
@@ -188,9 +200,9 @@ const SAVE_KEY = "aigirls_save_v1";
 let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
 let autoMode = false, skipMode = false, autoTimer = null, history = [];
 
-// ─── 设置（BGM） ───
+// ─── 设置（BGM / 自动播放速度） ───
 const SET_KEY = "aigirls_settings";
-let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"piano41"}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
+let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"piano41", autoSpeed:2}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
 function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
 let bgmAudio = new Audio(), bgmStarted = false;
 
@@ -233,6 +245,14 @@ function showTitle(scene){
   $("tcDate").textContent = scene.date;
   $("tcTitle").textContent = scene.title;
   $("titleCard").style.display = "flex";
+  // 回忆相册：解锁当前场景 CG
+  try{
+    const unlock = JSON.parse(localStorage.getItem("aigirls_cg_unlocked") || "{}");
+    if(!unlock[scene.id]){
+      unlock[scene.id] = {cg: scene.cg.split("/").pop(), title: scene.title, date: scene.date};
+      localStorage.setItem("aigirls_cg_unlocked", JSON.stringify(unlock));
+    }
+  }catch(e){}
 }
 function hideTitle(){ $("titleCard").style.display = "none"; inTitle = false; }
 
@@ -306,10 +326,14 @@ function next(){
   autoSave();
 }
 
+function autoDelay(){
+  const s = settings.autoSpeed || 2;
+  return s === 1 ? 5200 : s === 3 ? 2200 : 3600;
+}
 function scheduleAuto(){
   if(!autoMode || inChoice) return;
   clearTimeout(autoTimer);
-  autoTimer = setTimeout(()=>{ next(); }, inTransition ? 4200 : 3600);
+  autoTimer = setTimeout(()=>{ next(); }, inTransition ? Math.round(autoDelay()*1.15) : autoDelay());
 }
 
 $("boxInner").onclick = next;
@@ -349,6 +373,7 @@ function renderSettings(){
   $("sBgm").classList.toggle("on", settings.bgm);
   $("sBgmVol").value = settings.bgmVol;
   $("sBgmTrack").value = settings.bgmTrack;
+  $("sAutoSpeed").value = settings.autoSpeed || 2;
 }
 $("mSet").onclick = ()=>{ toggleMenu(true); renderSettings(); $("settingsPanel").style.display = "flex"; };
 $("settingsClose").onclick = ()=>{ $("settingsPanel").style.display = "none"; };
@@ -361,6 +386,11 @@ $("sBgmVol").oninput = (e)=>{
 };
 $("sBgmTrack").onchange = (e)=>{
   settings.bgmTrack = e.target.value; saveSettings(); applyBgm();
+};
+$("sAutoSpeed").onchange = (e)=>{
+  settings.autoSpeed = parseInt(e.target.value); saveSettings();
+  // 自动播放中立即生效
+  if(autoMode){ scheduleAuto(); }
 };
 
 // ─── 历史记录（点击条目可回档） ───
@@ -488,8 +518,15 @@ if(!localStorage.getItem("aigirls_name")){
 }
 
 showAff();
+const qp = new URLSearchParams(location.search);
+const qContinue = qp.get("continue") === "1";
+const qNew = qp.get("new") === "1";
+if(qNew){ localStorage.removeItem(SAVE_KEY + "_auto"); }
 const auto = localStorage.getItem(SAVE_KEY + "_auto");
-if(auto){
+if(qContinue && auto){
+  // 主界面「继续游戏」：直接读最近一次自动存档
+  loadSlot(-1);
+} else if(auto && !qNew){
   $("tcDate").textContent = "继续上次的进度？";
   $("tcTitle").textContent = "她们的聊天窗口，一直没有关";
   $("titleCard").style.display = "flex";
