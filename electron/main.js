@@ -21,8 +21,10 @@ function createWindow() {
   win.setMenuBarVisibility(false);
   win.loadFile(path.join(__dirname, "game", "index.html"));
 
-  // 防误导航（拖拽文件进来不跳转）
-  win.webContents.on("will-navigate", (e) => e.preventDefault());
+  // 允许本地页面跳转（index ↔ game），拦截外部导航/拖拽
+  win.webContents.on("will-navigate", (e, url) => {
+    if (!url.startsWith("file://")) e.preventDefault();
+  });
   win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
 }
 

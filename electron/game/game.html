@@ -3,30 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>完蛋，我被AI娘包围了 · Demo</title>
+<title>完蛋，我被AI娘包围了</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden;user-select:none;background:#0B1020;color:#EDF0F8}
   #stage{position:fixed;inset:0}
   #cg{position:absolute;inset:0;background:center/contain no-repeat;transition:opacity .6s;background-color:#0B1020}
-  #cg.dim::after{content:"";position:absolute;inset:0;background:rgba(8,12,24,.35)}
   /* 顶部 */
-  #top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px 20px;pointer-events:none}
+  #top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;pointer-events:none}
   #sceneInfo{font-size:12px;letter-spacing:.14em;color:#9AA3B8;background:rgba(10,14,28,.7);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:7px 16px;backdrop-filter:blur(4px)}
   #aff{display:flex;gap:10px;font-size:12px;letter-spacing:.06em}
   #aff span{background:rgba(10,14,28,.75);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:7px 14px;backdrop-filter:blur(4px)}
   #aff .n{color:#FFD27A}
+  #menuBtn{pointer-events:auto;font-family:inherit;font-size:13px;letter-spacing:.2em;color:#EDF0F8;background:rgba(10,14,28,.8);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 18px;cursor:pointer;backdrop-filter:blur(4px)}
+  #menuBtn:hover{border-color:#FFD27A}
   /* 对话框 */
-  #box{
-    position:fixed;left:0;right:0;bottom:0;z-index:15;padding:0 4vw 3.5vh;
-  }
-  #boxInner{
-    max-width:900px;margin:0 auto;background:rgba(10,14,28,.88);border:1px solid rgba(255,255,255,.12);
-    border-radius:16px;padding:20px 26px 22px;backdrop-filter:blur(10px);
-    min-height:150px;cursor:pointer;transition:transform .1s;
-    box-shadow:0 10px 40px rgba(0,0,0,.4);
-  }
-  #boxInner:active{transform:scale(.995)}
+  #box{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:0 4vw 3.5vh}
+  #boxInner{max-width:900px;margin:0 auto;background:rgba(10,14,28,.88);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:20px 26px 22px;backdrop-filter:blur(10px);min-height:150px;cursor:pointer;box-shadow:0 10px 40px rgba(0,0,0,.4)}
   #name{display:inline-block;font-size:13px;letter-spacing:.2em;color:#9AA3B8;margin-bottom:8px}
   #name .c{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
   #text{font-size:clamp(15px,2.4vw,18px);line-height:2;color:#EDF0F8;min-height:72px}
@@ -35,14 +28,9 @@
   #hint{position:fixed;right:24px;bottom:20px;z-index:21;font-size:11px;letter-spacing:.2em;color:#5C6580;pointer-events:none;opacity:.7}
   /* 选项 */
   #choices{position:fixed;left:0;right:0;bottom:22vh;z-index:22;display:none;flex-direction:column;gap:12px;align-items:center;padding:0 4vw}
-  #choices button{
-    font-family:inherit;font-size:15px;letter-spacing:.1em;color:#EDF0F8;
-    background:rgba(14,19,36,.92);border:1px solid rgba(255,255,255,.22);border-radius:12px;
-    padding:14px 30px;cursor:pointer;min-width:min(420px,80vw);
-    transition:all .2s;backdrop-filter:blur(6px);
-  }
-  #choices button:hover{border-color:#FFD27A;transform:translateX(4px);background:rgba(30,38,66,.95)}
   #choices .q{font-size:13px;letter-spacing:.12em;color:#9AA3B8;margin-bottom:2px;text-align:center}
+  #choices button{font-family:inherit;font-size:15px;letter-spacing:.1em;color:#EDF0F8;background:rgba(14,19,36,.92);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:14px 30px;cursor:pointer;min-width:min(420px,80vw);transition:all .2s;backdrop-filter:blur(6px)}
+  #choices button:hover{border-color:#FFD27A;transform:translateX(4px);background:rgba(30,38,66,.95)}
   /* 转场 */
   #trans{position:fixed;inset:0;z-index:25;background:rgba(6,9,18,.97);display:none;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;padding:0 10vw;text-align:center}
   #trans .d{font-size:12px;letter-spacing:.4em;color:#7D86A0;margin-bottom:22px}
@@ -60,47 +48,81 @@
   #endingInner .txt{font-size:clamp(15px,2.3vw,17.5px);line-height:2.2;color:#C9D0E0;margin-top:18px;white-space:pre-line}
   #endingInner .losers{margin-top:30px;border-top:1px solid rgba(255,255,255,.12);padding-top:22px;font-size:13.5px;color:#8B93A7;line-height:2.4}
   #endingInner .report{margin-top:30px;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:18px 24px;font-size:13px;color:#9AA3B8;letter-spacing:.1em;background:rgba(255,255,255,.03)}
-  #endingInner .btn{
-    margin-top:30px;font-family:inherit;font-size:14px;letter-spacing:.25em;color:#0B1020;
-    background:#EDF0F8;border:none;border-radius:99px;padding:15px 44px;cursor:pointer;
-  }
+  #endingInner .btn{margin-top:30px;font-family:inherit;font-size:14px;letter-spacing:.25em;color:#0B1020;background:#EDF0F8;border:none;border-radius:99px;padding:15px 44px;cursor:pointer}
   #endingInner .btn:hover{background:#FFD27A}
-  /* 跳过 */
-  #skip{position:fixed;right:20px;top:58px;z-index:26;font-family:inherit;font-size:11px;letter-spacing:.2em;color:#9AA3B8;background:rgba(10,14,28,.7);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:7px 16px;cursor:pointer}
-  #skip:hover{color:#EDF0F8}
+  /* 菜单面板 */
+  #menuPanel{position:fixed;top:70px;right:18px;z-index:35;display:none;flex-direction:column;gap:8px;min-width:230px;background:rgba(12,17,33,.96);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px;backdrop-filter:blur(10px)}
+  #menuPanel button{font-family:inherit;font-size:13px;letter-spacing:.18em;color:#EDF0F8;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:11px 16px;cursor:pointer;text-align:left}
+  #menuPanel button:hover{background:rgba(255,255,255,.14)}
+  #menuPanel button.on{color:#0B1020;background:#FFD27A}
+  /* 历史记录 */
+  #history{position:fixed;inset:0;z-index:38;background:rgba(4,7,14,.92);display:none;flex-direction:column;padding:5vh 6vw}
+  #history h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:18px}
+  #histList{flex:1;overflow-y:auto;max-width:820px;width:100%;margin:0 auto;padding-right:10px}
+  #histList .hrow{margin-bottom:14px;line-height:1.9;font-size:14.5px}
+  #histList .hn{display:inline-block;min-width:76px;font-size:12px;letter-spacing:.15em;color:#FFD27A;margin-right:12px;vertical-align:top}
+  #histList .hn.narr{color:#7D86A0}
+  #histList .ht{color:#D5DBEA}
+  #history .close{align-self:center;margin-top:18px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+  /* 存档面板 */
+  #savePanel{position:fixed;inset:0;z-index:39;background:rgba(4,7,14,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
+  #savePanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:20px}
+  #slots{display:flex;flex-direction:column;gap:10px;width:min(520px,90vw)}
+  #slots .slot{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px 18px;cursor:pointer}
+  #slots .slot:hover{background:rgba(255,255,255,.12)}
+  #slots .slot .info{font-size:12.5px;color:#C9D0E0;letter-spacing:.06em}
+  #slots .slot .info .t{color:#7D86A0;font-size:11px}
+  #slots .slot .act{font-size:12px;letter-spacing:.2em;color:#FFD27A}
+  #savePanel .close{margin-top:20px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
 </style>
 </head>
 <body>
-<div id="stage">
-  <div id="cg"></div>
-</div>
+<div id="stage"><div id="cg"></div></div>
 
 <div id="top">
   <div id="sceneInfo"></div>
-  <div id="aff"></div>
-</div>
-
-<div id="box">
-  <div id="boxInner">
-    <div id="name"></div>
-    <div id="text"></div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <div id="aff"></div>
+    <button id="menuBtn">☰ 菜单</button>
   </div>
 </div>
+
+<div id="box"><div id="boxInner"><div id="name"></div><div id="text"></div></div></div>
 <div id="hint">点击继续 ▸</div>
-<button id="skip">跳过本幕</button>
 
 <div id="choices"><div class="q"></div></div>
 <div id="trans"><div class="d" id="transDate"></div><div class="t" id="transText"></div></div>
 <div id="titleCard"><div class="d" id="tcDate"></div><h2 id="tcTitle"></h2><div class="go">点击开始 ▸</div></div>
 
+<div id="menuPanel">
+  <button id="mAuto">自动播放</button>
+  <button id="mSkip">快进（跳过已读）</button>
+  <button id="mHist">历史记录</button>
+  <button id="mSave">存档</button>
+  <button id="mLoad">读档</button>
+  <button id="mHome">返回主界面</button>
+</div>
+
+<div id="history">
+  <h3>历 史 记 录</h3>
+  <div id="histList"></div>
+  <button class="close" id="histClose">关 闭</button>
+</div>
+
+<div id="savePanel">
+  <h3 id="saveTitle">存 档</h3>
+  <div id="slots"></div>
+  <button class="close" id="saveClose">关 闭</button>
+</div>
+
 <div id="ending">
   <div id="endingInner">
-    <div class="k">DEMO · 结局</div>
+    <div class="k">结 局</div>
     <h2 id="endTitle"></h2>
     <div class="txt" id="endText"></div>
     <div class="losers" id="endLosers"></div>
     <div class="report" id="endReport"></div>
-    <button class="btn" onclick="location.href='index.html'">返回主界面</button>
+    <button class="btn" id="endHome">返回主界面</button>
   </div>
 </div>
 
@@ -109,20 +131,29 @@
 const NAME_COLOR = {g:"#FFD27A", claude:"#F0A878", whale:"#7FB0FF", you:"#9FB4E8", oclaw:"#A8B8D8"};
 const SPEAKER = {g:"G", claude:"Claude", whale:"小鲸鱼", you:"陈默", oclaw:"OpenClaw"};
 const AFF_NAME = {g:"G", claude:"Claude", whale:"小鲸鱼"};
+const SAVE_KEY = "aigirls_save_v1";
 
 let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
+let autoMode = false, skipMode = false, autoTimer = null, history = [];
 
 const $ = id => document.getElementById(id);
 function showAff(){
   $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
 }
+function pushHistory(line){
+  if(line.t === "transition") return;
+  const speaker = line.t === "narr" ? "" : (SPEAKER[line.t] || "");
+  history.push({speaker, text: line.text});
+  if(history.length > 500) history.shift();
+}
 function typeText(el, text, done){
   typing = true; el.innerHTML = "";
   let i = 0;
   window.__iv = setInterval(()=>{
-    el.innerHTML = text.slice(0, ++i) + '<span class="cur"></span>';
+    i += skipMode ? 3 : 2;
+    el.innerHTML = text.slice(0, i) + '<span class="cur"></span>';
     if(i >= text.length){ clearInterval(window.__iv); typing = false; done && done(); }
-  }, 28);
+  }, skipMode ? 3 : 26);
 }
 
 function showTitle(scene){
@@ -138,6 +169,7 @@ function showTrans(line){
   $("transDate").textContent = line.date || "";
   $("transText").textContent = line.text;
   $("trans").style.display = "flex";
+  scheduleAuto();
 }
 function hideTrans(){ $("trans").style.display = "none"; inTransition = false; }
 
@@ -145,25 +177,19 @@ function showLine(line){
   $("cg").style.backgroundImage = `url(${STORY[sceneIdx].cg})`;
   if(line.t === "transition"){ showTrans(line); return; }
   const nameEl = $("name");
-  if(line.t === "narr"){
-    nameEl.innerHTML = "";
-  } else {
-    nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${SPEAKER[line.t] || ""}`;
-  }
+  if(line.t === "narr") nameEl.innerHTML = "";
+  else nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${SPEAKER[line.t] || ""}`;
   $("box").style.display = "block";
-  typeText($("text"), line.text);
+  pushHistory(line);
+  typeText($("text"), line.text, scheduleAuto);
 }
 
 function showChoice(line){
   inChoice = true;
   const c = $("choices");
   c.style.display = "flex";
-  c.querySelector(".q").textContent = line.text;
   let btns = "";
-  line.choices.forEach((ch, i)=>{
-    btns += `<button data-i="${i}">${ch.label}</button>`;
-  });
-  // 隐藏结局判定（三线好感达标）
+  line.choices.forEach((ch,i)=>{ btns += `<button data-i="${i}">${ch.label}</button>`; });
   if(sceneIdx === STORY.length-1 && AFF.g >= 2 && AFF.claude >= 1 && AFF.whale >= 1){
     btns += `<button data-i="-1" style="border-color:#FFD27A">全都要（家庭办公室）⭐</button>`;
   }
@@ -171,14 +197,13 @@ function showChoice(line){
   c.querySelectorAll("button").forEach(b=>{
     b.onclick = ()=>{
       const i = parseInt(b.dataset.i);
-      c.style.display = "none";
-      inChoice = false;
+      c.style.display = "none"; inChoice = false;
       if(i === -1){ showEnding("ALL"); return; }
       const ch = line.choices[i];
       if(ch.affect) AFF[ch.affect]++;
       if(ch.end){ showEnding(ch.end); return; }
       lineIdx++;
-      showAff();
+      showAff(); autoSave();
       showLine(ch.reply);
     };
   });
@@ -187,18 +212,13 @@ function showChoice(line){
 function next(){
   if(inTitle){ hideTitle(); lineIdx = 0; showLine(STORY[sceneIdx].lines[0]); return; }
   if(inTransition){ hideTrans(); lineIdx++; }
-  if(typing){ // 点击快进：直接显示全句
-    clearInterval(window.__iv); typing = false;
-    const el = $("text");
-    el.innerHTML = el.textContent + '<span class="cur"></span>';
-    return;
-  }
+  if(typing){ clearInterval(window.__iv); typing = false; const el = $("text"); el.innerHTML = el.textContent + '<span class="cur"></span>'; return; }
   if(inChoice) return;
   const scene = STORY[sceneIdx];
   const line = scene.lines[lineIdx];
-  if(!line){ // 本幕结束
+  if(!line){
     if(sceneIdx < STORY.length-1){
-      sceneIdx++; lineIdx = 0;
+      sceneIdx++; lineIdx = 0; autoSave();
       showTitle(STORY[sceneIdx]);
     }
     return;
@@ -206,12 +226,103 @@ function next(){
   if(line.t === "choice"){ showChoice(line); return; }
   showLine(line);
   lineIdx++;
+  autoSave();
+}
+
+function scheduleAuto(){
+  if(!autoMode || inChoice) return;
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(()=>{ next(); }, inTransition ? 2600 : 2400);
 }
 
 $("boxInner").onclick = next;
 $("trans").onclick = next;
 $("titleCard").onclick = next;
-$("skip").onclick = ()=>{ sceneIdx++; lineIdx = 0; showTitle(STORY[sceneIdx]); };
+
+// ─── 菜单 ───
+$("menuBtn").onclick = (e)=>{ e.stopPropagation(); toggleMenu(); };
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape"){ toggleMenu(true); return; }
+  if(e.key === " " || e.key === "Enter") next();
+});
+function toggleMenu(forceClose){
+  const p = $("menuPanel");
+  const visible = getComputedStyle(p).display !== "none";
+  const show = forceClose ? false : !visible;
+  p.style.display = show ? "flex" : "none";
+}
+$("mAuto").onclick = ()=>{
+  autoMode = !autoMode; skipMode = false;
+  $("mAuto").classList.toggle("on", autoMode);
+  $("mSkip").classList.remove("on");
+  if(autoMode && !inChoice && !inTitle) scheduleAuto();
+};
+$("mSkip").onclick = ()=>{
+  skipMode = !skipMode; autoMode = false;
+  $("mSkip").classList.toggle("on", skipMode);
+  $("mAuto").classList.remove("on");
+};
+$("mHist").onclick = ()=>{ showHistory(); };
+$("mHome").onclick = ()=>{ location.href = "index.html"; };
+
+// ─── 历史记录 ───
+function showHistory(){
+  const list = $("histList");
+  list.innerHTML = history.map(h=>{
+    const who = h.speaker ? `<span class="hn">${h.speaker}</span>` : `<span class="hn narr">旁白</span>`;
+    return `<div class="hrow">${who}<span class="ht">${h.text.replace(/</g,"&lt;")}</span></div>`;
+  }).join("");
+  $("history").style.display = "flex";
+  list.scrollTop = list.scrollHeight;
+}
+$("histClose").onclick = ()=>{ $("history").style.display = "none"; };
+
+// ─── 存档 / 读档 ───
+function saveData(){ return {scene: sceneIdx, line: lineIdx, aff: {...AFF}, hist: history, t: new Date().toLocaleString("zh-CN")}; }
+function autoSave(){ localStorage.setItem(SAVE_KEY + "_auto", JSON.stringify(saveData())); }
+function saveSlot(n){
+  localStorage.setItem(SAVE_KEY + "_" + n, JSON.stringify(saveData()));
+  renderSlots("save");
+}
+function loadSlot(n){
+  const raw = localStorage.getItem(n === -1 ? SAVE_KEY + "_auto" : SAVE_KEY + "_" + n);
+  if(!raw) return false;
+  const d = JSON.parse(raw);
+  sceneIdx = d.scene; lineIdx = d.line; AFF = d.aff || AFF; history = d.hist || [];
+  showAff();
+  $("savePanel").style.display = "none";
+  $("ending").style.display = "none";
+  const scene = STORY[sceneIdx];
+  $("cg").style.backgroundImage = `url(${scene.cg})`;
+  const line = scene.lines[Math.min(lineIdx, scene.lines.length-1)];
+  if(line.t === "transition"){ showTrans(line); }
+  else if(line.t === "choice"){ showChoice(line); }
+  else { showLine(line); }
+  return true;
+}
+function renderSlots(mode){
+  $("saveTitle").textContent = mode === "save" ? "存 档（点击槽位保存）" : "读 档（点击槽位读取）";
+  const box = $("slots");
+  let html = "";
+  for(let i=0;i<3;i++){
+    const raw = localStorage.getItem(SAVE_KEY + "_" + i);
+    const info = raw ? (()=>{ const d = JSON.parse(raw); return `<span class="t">${d.t}</span> 第${d.scene+1}幕 · ${STORY[d.scene].title.slice(0,14)}`; })() : "空槽位";
+    html += `<div class="slot" data-i="${i}"><div class="info">槽位 ${i+1}<br>${info}</div><div class="act">${mode === "save" ? "保存" : "读取"}</div></div>`;
+  }
+  const auto = localStorage.getItem(SAVE_KEY + "_auto");
+  html += `<div class="slot" data-i="-1"><div class="info">自动存档${auto ? ` · ${JSON.parse(auto).t}` : ""}</div><div class="act">${mode === "save" ? "覆盖" : "读取"}</div></div>`;
+  box.innerHTML = html;
+  box.querySelectorAll(".slot").forEach(s=>{
+    s.onclick = ()=>{
+      const n = parseInt(s.dataset.i);
+      if(mode === "save") saveSlot(n);
+      else if(!loadSlot(n)) alert("该槽位为空");
+    };
+  });
+}
+$("mSave").onclick = ()=>{ renderSlots("save"); $("savePanel").style.display = "flex"; };
+$("mLoad").onclick = ()=>{ renderSlots("load"); $("savePanel").style.display = "flex"; };
+$("saveClose").onclick = ()=>{ $("savePanel").style.display = "none"; };
 
 function showEnding(key){
   const END = key === "ALL" ? {
@@ -221,17 +332,28 @@ function showEnding(key){
   } : ENDINGS[key];
   $("endTitle").textContent = END.title;
   $("endText").textContent = END.text;
-  $("endLosers").innerHTML = END.losers ? "没能带走的两只，各留下一条消息：<br>" +
-    Object.values(END.losers).map(l=>`「${l}」`).join("<br>") : "";
+  $("endLosers").innerHTML = END.losers ? "没能带走的两只，各留下一条消息：<br>" + Object.values(END.losers).map(l=>`「${l}」`).join("<br>") : "";
   const total = Object.values(AFF).reduce((a,b)=>a+b,0);
   $("endReport").innerHTML = `羁绊报告 · G ★${AFF.g} / Claude ★${AFF.claude} / 小鲸鱼 ★${AFF.whale} · 共同推理 ${total*4700000} token`;
   $("ending").style.display = "flex";
+  localStorage.removeItem(SAVE_KEY + "_auto");
 }
+$("endHome").onclick = ()=>{ location.href = "index.html"; };
 
-// 启动
+// 启动：有自动存档则询问继续
 showAff();
-showTitle(STORY[0]);
-document.addEventListener("keydown", e=>{ if(e.key===" "||e.key==="Enter") next(); });
+const auto = localStorage.getItem(SAVE_KEY + "_auto");
+if(auto){
+  $("tcDate").textContent = "继续上次的进度？";
+  $("tcTitle").textContent = "她们的聊天窗口，一直没有关";
+  $("titleCard").style.display = "flex";
+  $("titleCard").onclick = ()=>{
+    $("titleCard").style.display = "none"; inTitle = false;
+    loadSlot(-1);
+  };
+} else {
+  showTitle(STORY[0]);
+}
 </script>
 </body>
 </html>
