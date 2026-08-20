@@ -282,84 +282,9 @@ const $ = id => document.getElementById(id);
 function showAff(){
   $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
 }
-// 读取玩家电脑配置（鲸鱼娘"看新家"台词用；拿不到返回 null 走兜底文案）
-function getPCConfig(){
-  try{
-    const parts = [];
-    const pc = (typeof window !== "undefined" && window.pcInfo) ? window.pcInfo : null;
-    // CPU：型号（preload/os 模块）+ 核数（navigator）
-    const cores = (pc && pc.cpuCount) || navigator.hardwareConcurrency || null;
-    const cpuModel = (pc && pc.cpuModel) || null;
-    if(cpuModel && cores) parts.push(cpuModel + " · " + cores + " 核");
-    else if(cpuModel) parts.push(cpuModel);
-    else if(cores) parts.push(cores + " 核 CPU");
-    // 内存：精确字节（preload/os.totalmem）→ GB；fallback navigator.deviceMemory
-    let memGB = null;
-    if(pc && pc.totalMemBytes){
-      memGB = Math.round(pc.totalMemBytes / 1073741824); // 向上取整到整数 GB（16GB 内存显示 16，不显示 15.8）
-    } else if(navigator.deviceMemory){
-      memGB = navigator.deviceMemory;
-    }
-    if(memGB) parts.push(memGB + " GB 内存");
-    // 显卡（WebGL 报告真实渲染器，含完整型号）
-    let gpu = null;
-    try{
-      const c = document.createElement("canvas");
-      const gl = c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl");
-      if(gl){
-        const ext = gl.getExtension("WEBGL_debug_renderer_info");
-        if(ext){
-          const raw = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "");
-          let cleaned = raw.replace(/^ANGLE\s*\(?\s*/i, "").replace(/Direct3D.*$/i, "").replace(/\(0x[0-9A-Fa-f]+\)/g, "").trim();
-          // raw 形如 "NVIDIA, NVIDIA GeForce RTX 5060"——跳过逗号前的品牌名，取 "品牌 + 型号"
-          const m = cleaned.match(/(?:NVIDIA|AMD|Intel|Apple|Qualcomm|ARM),\s*((?:NVIDIA|AMD|Intel|Apple|Qualcomm|ARM)[A-Za-z0-9 一-龥\-]*)/i) ||
-                    cleaned.match(/((?:NVIDIA|AMD|Intel|Apple|Qualcomm|ARM)[A-Za-z0-9 一-龥\-]*)/i);
-          if(m) gpu = (m[1] || m[0]).replace(/\s+/g, " ").trim();
-        }
-      }
-    }catch(e){}
-    if(gpu) parts.push(gpu + " 显卡");
-    // 显示器：分辨率（物理 CSS 像素 × 缩放比）+ 色深
-    let disp = null;
-    try{
-      const w = screen.width || 0, h = screen.height || 0;
-      const dpr = window.devicePixelRatio || 1;
-      if(w && h){
-        const rw = Math.round(w * dpr), rh = Math.round(h * dpr);
-        disp = rw + "×" + rh + " 屏幕";
-        if(dpr > 1) disp += "（" + dpr + "× 缩放）";
-        const cd = screen.colorDepth || 0;
-        if(cd) disp += " · " + cd + " 位色";
-      }
-    }catch(e){}
-    if(disp) parts.push(disp);
-    // 系统平台 + 版本（preload 的 release / userAgentData）
-    let os = null;
-    try{
-      const ua = navigator.userAgent || "";
-      let ver = null;
-      if(pc && pc.release){
-        const r = String(pc.release);
-        // Windows 10.0.22000+ = Win11
-        if(pc.platform === "win32"){
-          os = parseFloat(r.split(".")[2] || 0) >= 22000 ? "Windows 11" : "Windows 10";
-        } else if(pc.platform === "darwin"){
-          os = "macOS";
-        } else if(pc.platform === "linux"){
-          os = "Linux";
-        }
-      }
-      if(!os){
-        if(/Windows/i.test(ua)) os = "Windows";
-        else if(/Mac OS X|Macintosh/i.test(ua)) os = "macOS";
-        else if(/Linux/i.test(ua)) os = "Linux";
-      }
-    }catch(e){}
-    if(os) parts.push(os + " 系统");
-    if(parts.length === 0) return null;
-    return parts.join("，");
-  }catch(e){ return null; }
-}
+// 读取玩家电脑配置（鲸鱼娘"看新家"台词用）
+// 【手机版隐私合规】不读取任何设备信息（GPU/CPU/内存/分辨率），台词走兜底文案
+function getPCConfig(){ return null; }
 function displayText(t){ return t.split("陈默").join(PLAYER_NAME).split("{PC}").join(getPCConfig() || "一台普通的电脑"); }
 function pushHistory(line, extra){
   if(line.t === "transition") return;

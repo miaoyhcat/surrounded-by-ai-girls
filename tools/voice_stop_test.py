@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""配音停止/无重叠测试：
-模拟专业引擎行为——每句新台词开始前强制停掉旧配音（Ren'Py voice_can_be_suppressed 同款）。
-验证：连续快速推进多句（含 whale 变声句），任何时刻最多只有一个声音源在播。"""
-import json, subprocess, sys
+"""配音停止/无重叠测试（当前引擎版）：
+验证：连续快速推进多句台词，任何时刻最多只有一个 voiceAudio 在播。
+（playVoice 先 stopVoice 再播新句——杜绝重叠）"""
+import sys
 from playwright.sync_api import sync_playwright
 
 BASE = "http://127.0.0.1:8899/game.html"
@@ -23,7 +23,7 @@ with sync_playwright() as p:
     pg.reload()
     pg.wait_for_timeout(400)
 
-    # 进入 s4（含 whale），先播一句 whale（变声路径）
+    # 进入 s4（含 whale 角色），先播一句 whale
     pg.evaluate("""() => {
       PLAYER_NAME='测试君';
       const si = STORY.findIndex(s => s.id === 's4');
@@ -34,56 +34,49 @@ with sync_playwright() as p:
       while(lineIdx < STORY[si].lines.length && STORY[si].lines[lineIdx].t !== 'whale') lineIdx++;
       showLine(STORY[si].lines[lineIdx]); lineIdx++;
     }""")
-    pg.wait_for_timeout(2000)  # whale 变声开始播放
+    pg.wait_for_timeout(2000)  # whale 配音开始播放
 
-    # 关键断言 1：whale 变声在播（voiceShifter 存在）
-    has_shifter = pg.evaluate("voiceShifter !== null")
-    check("whale 变声正在播放（voiceShifter 存在）", has_shifter)
+    # 断言 1：whale 配音在播
+    st1 = pg.evaluate("voiceAudio ? {src: voiceAudio.src.split('/').pop(), paused: voiceAudio.paused} : null")
+    check("whale 配音正在播放", st1 and not st1["paused"] and "whale" in st1["src"], str(st1))
 
-    # 关键断言 2：立即切到 g 台词（whale 台词还没念完），旧配音必须被停止
+    # 断言 2：立即切到 g 台词（whale 还没念完），旧配音必须被停止
     pg.evaluate("""() => {
       const si = sceneIdx;
       while(lineIdx < STORY[si].lines.length && STORY[si].lines[lineIdx].t !== 'g') lineIdx++;
       showLine(STORY[si].lines[lineIdx]); lineIdx++;
     }""")
     pg.wait_for_timeout(800)
-    st = pg.evaluate("""({
-      shifter: voiceShifter !== null,
-      chain: voiceChain.length,
-      audio: voiceAudio ? (typeof voiceAudio.pause === 'function' ? 'htmlaudio' : typeof voiceAudio.connect === 'function' ? 'scriptnode' : 'other') : 'none'
-    })""")
-    print("切换后状态:", st)
-    check("whale 变声已被停止（voiceShifter 清空）", not st["shifter"] and st["chain"] == 0,
-          f"shifter={st['shifter']} chain={st['chain']}")
-    check("g 台词正在播（HTMLAudio）", st["audio"] == "htmlaudio", st["audio"])
+    st2 = pg.evaluate("voiceAudio ? {src: voiceAudio.src.split('/').pop(), paused: voiceAudio.paused, dur: Math.round(voiceAudio.duration)} : null")
+    check("切换到 g 台词（新配音在播）", st2 and not st2["paused"] and "g_" in st2["src"], str(st2))
 
-    # 关键断言 3：快速连播 5 句（模拟自动播放节奏），每次切换旧声都被停
-    ok_all = True
-    for i in range(5):
+    # 断言 3：快速连播 8 句，任何时刻只有一个声音源（每次切换旧声被停）
+    overlap = False
+    for i in range(8):
         pg.evaluate("""() => {
           const si = sceneIdx;
-          if(lineIdx >= STORY[si].lines.length){ si2 = si+1; sceneIdx = si2; lineIdx = 0; }
-          showLine(STORY[si===undefined?sceneIdx:si].lines[lineIdx]); lineIdx++;
+          if(lineIdx >= STORY[si].lines.length){ sceneIdx = si+1; lineIdx = 0; }
+          const s = STORY[sceneIdx];
+          if(lineIdx < s.lines.length && (s.lines[lineIdx].t === 'g' || s.lines[lineIdx].t === 'whale' || s.lines[lineIdx].t === 'claude')){
+            showLine(s.lines[lineIdx]); lineIdx++;
+          }
         }""")
-        pg.wait_for_timeout(150)
-        st2 = pg.evaluate("""({
-          shifter: voiceShifter !== null,
-          chain: voiceChain.length,
-          audio: voiceAudio ? (typeof voiceAudio.pause === 'function' ? 'htmlaudio' : 'scriptnode') : 'none',
-          gen: voiceGen
-        })""")
-        # 任何时刻：要么 HTMLAudio 在播，要么 ScriptNode 在播，要么无；但不能同时有两个
-        if st2["shifter"] and st2["audio"] == "htmlaudio":
-            ok_all = False
-            print(f"  第{i}句 重叠! shifter={st2['shifter']} audio={st2['audio']}")
-    check("快速连播无重叠（任一时刻单一声源）", ok_all)
+        pg.wait_for_timeout(120)
+        st = pg.evaluate("""(() => {
+          const audios = document.querySelectorAll('audio');
+          const playing = [];
+          audios.forEach(a => { if(!a.paused) playing.push(a.src.split('/').pop()); });
+          return playing;
+        })()""")
+        if len(st) > 1:
+            overlap = True
+            print(f"  第{i}句 重叠! 同时播放: {st}")
+    check("快速连播无重叠（任一时刻单一声源）", not overlap)
 
-    # 关键断言 4：stopVoice 后一切清空
-    pg.evaluate("showLine(STORY[sceneIdx].lines[Math.min(lineIdx, STORY[sceneIdx].lines.length-1)]); lineIdx++;")
-    pg.wait_for_timeout(300)
+    # 断言 4：stopVoice 后清空
     pg.evaluate("stopVoice()")
-    st3 = pg.evaluate("({shifter: voiceShifter !== null, chain: voiceChain.length, audio: voiceAudio !== null})")
-    check("stopVoice 全部清空", not st3["shifter"] and st3["chain"] == 0 and not st3["audio"], str(st3))
+    st3 = pg.evaluate("voiceAudio === null")
+    check("stopVoice 清空当前配音", st3)
 
     check("无页面/控制台错误", len(errors) == 0, "; ".join(errors[:3]) if errors else "")
     b.close()
