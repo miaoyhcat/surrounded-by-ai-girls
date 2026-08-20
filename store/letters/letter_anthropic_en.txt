@@ -1,0 +1,20 @@
+Dear Anthropic Team,
+
+Hello! I am a high school student from China and a devoted user of Claude. During this summer vacation, I developed a visual novel game titled "Surrounded by AI Girls" (Chinese: 《完蛋，我被AI娘包围了》) with the help of AI coding tools. The game is scheduled to launch on Steam at the end of August (store page coming soon), and a free test build is currently available on TapTap, a Chinese gaming platform, for PC.
+
+I would like to clarify a few things about the game:
+
+- The character "Claude-chan" (Claude娘) is a widely shared fan-made personification (moe anthropomorphization) of AI that circulates in the community. The game's story is entirely original.
+- The game contains no content that disparages or misrepresents Anthropic or its products.
+- We have included a recommendation link to Claude's official website within the game, hoping to introduce more players to your products.
+
+After the official release, I plan to donate a portion of the revenue to charity organizations, while ensuring the development of future DLC.
+
+If you find anything inappropriate in the game or have any concerns, please do not hesitate to contact me. I will make adjustments promptly.
+
+Thank you for your time.
+
+Sincerely,
+A Chinese High School Student Developer
+
+Contact: 3277681859@qq.com

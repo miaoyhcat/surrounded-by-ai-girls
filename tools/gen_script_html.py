@@ -65,6 +65,10 @@ for i, s in enumerate(STORY, 1):
     parts.append(f'<div class="meta">时间：{s["date"]} ｜ CG：{cg}</div>')
     parts.append(img_html)
     for l in s["lines"]:
+        if l.get("cg"):
+            cgb = img_b64(l["cg"].split("/")[-1])
+            parts.append(f'<div class="meta" style="color:#FFD27A">↳ 场景切换：{l["cg"].split("/")[-1]}</div>')
+            parts.append(f'<img src="{cgb}" alt="{l["cg"]}">' if cgb else f'<div style="color:#5C6580">CG 缺失：{l["cg"]}</div>')
         if l["t"] == "transition":
             parts.append(f'<div class="trans">◆ 转场（{l.get("date","")}）：{l["text"]}</div>')
         elif l["t"] == "choice":

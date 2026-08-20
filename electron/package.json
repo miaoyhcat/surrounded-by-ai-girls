@@ -13,18 +13,22 @@
     "appId": "com.aigirls.gal",
     "productName": "完蛋我被AI娘包围了",
     "directories": { "output": "dist" },
-    "files": ["main.js", "game/**/*"],
+    "files": ["main.js", "preload.js", "game/**/*"],
+    "afterPack": "afterPack.js",
     "win": {
       "icon": "build/icon.ico",
-      "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }]
+      "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "完蛋我被AI娘包围了"
+      "shortcutName": "完蛋我被AI娘包围了",
+      "artifactName": "AI-Girls-Surrounded-Setup-${version}-${arch}.${ext}"
     },
-    "artifactName": "AI-Girls-Surrounded-${version}-${arch}.${ext}"
-  },
+    "portable": {
+      "artifactName": "AI-Girls-Surrounded-Portable-${version}-${arch}.${ext}"
+    },
+    "artifactName": "AI-Girls-Surrounded-${version}-${arch}.${ext}"  },
   "devDependencies": {
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0"

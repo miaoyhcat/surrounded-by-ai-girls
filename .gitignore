@@ -3,6 +3,9 @@
 .env.*
 *.key
 *.pem
+*.keystore
+*.jks
+*.p12
 FACTS.md
 
 # Python
@@ -19,6 +22,17 @@ dist/
 # 构建产物
 build/
 out/
+*.apk
+*.zip
+*.exe
+*.asar
+
+# 敏感文件
+*cookie*
+*login*
+*password*
+ghs.json
+douyin_*
 
 # 本地数据
 *.log

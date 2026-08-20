@@ -43,8 +43,12 @@ with sync_playwright() as p:
     cur = pg.inner_text("#text")
     check("推进正常", len(cur) > 0, f"text=[{cur[:24]}...]")
 
-    # 5. 选项分支：直接推进到第一幕 choice（next() 为全局函数）
-    pg.evaluate("(()=>{ for(let i=0;i<500;i++){ if(document.getElementById('choices').style.display==='flex') break; next(); } })()")
+    # 5. 选项分支：直接推进到第一幕 choice（next() 为全局函数；minigame 行速通跳过）
+    pg.evaluate("""(()=>{ for(let i=0;i<500;i++){
+      if(document.getElementById('choices').style.display==='flex') break;
+      if(STORY[sceneIdx] && STORY[sceneIdx].lines[lineIdx] && STORY[sceneIdx].lines[lineIdx].t === 'minigame'){ lineIdx++; continue; }
+      next();
+    } })()""")
     pg.wait_for_timeout(500)
     clicked_choice = pg.is_visible("#choices")
     if clicked_choice:
@@ -66,10 +70,12 @@ with sync_playwright() as p:
 
     # 7. 快进模式
     pg.evaluate("document.querySelector('#menuBtn').click()"); pg.wait_for_timeout(300)
+    # 标记前 3 行已读，回退到已读行，开快进 → 应跳过已读、停在未读行
     pg.evaluate("document.querySelector('#mSkip').click()")
-    on = pg.evaluate("document.querySelector('#mSkip').classList.contains('on')")
+    pg.wait_for_timeout(400)
+    on = pg.evaluate("skipMode")
+    pg.evaluate("stopSkip()")
     check("快进开关", on)
-    pg.evaluate("document.querySelector('#mSkip').click()")  # 关快进
     pg.evaluate("document.querySelector('#menuBtn').click()"); pg.wait_for_timeout(300)
 
     # 8. 历史记录 + 回档

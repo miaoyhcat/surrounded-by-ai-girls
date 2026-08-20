@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">完蛋我被AI娘包围了</string>
+    <string name="title_activity_main">完蛋我被AI娘包围了</string>
+    <string name="package_name">com.aigirls.galgame</string>
+    <string name="custom_url_scheme">com.aigirls.galgame</string>
+</resources>

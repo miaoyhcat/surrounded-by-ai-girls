@@ -34,6 +34,9 @@ def play_forward(pg, target_scene, max_steps=600):
         if s >= target_scene:
             return True
         pg.evaluate("next()")
+        # 小游戏行：模拟玩家快速通过
+        if pg.evaluate("STORY[sceneIdx] && STORY[sceneIdx].lines[lineIdx] && STORY[sceneIdx].lines[lineIdx].t === 'minigame'"):
+            pg.evaluate("lineIdx++; autoSave()")
         if pg.evaluate("document.getElementById('choices').style.display === 'flex'"):
             pg.evaluate("document.querySelector('#choices button').click()")
         if pg.evaluate("document.getElementById('trans').style.display === 'flex'"):
@@ -118,7 +121,7 @@ with sync_playwright() as p:
     pg.evaluate("document.querySelector('#menuBtn').click()"); pg.wait_for_timeout(200)
     pg.evaluate("document.querySelector('#mSet').click()"); pg.wait_for_timeout(300)
     check("设置含自动速度", pg.evaluate("!!document.querySelector('#sAutoSpeed')"))
-    check("设置含其他寄语", "谨以此游戏" in pg.inner_text("#settingsPanel"))
+    check("设置含高中生独立研发寄语", "高中生独立研发" in pg.inner_text("#settingsPanel"))
     pg.evaluate("document.querySelector('#sAutoSpeed').value='3'; document.querySelector('#sAutoSpeed').dispatchEvent(new Event('change'))")
     check("自动速度保存=3", pg.evaluate("JSON.parse(localStorage.getItem('aigirls_settings')).autoSpeed") == 3)
     pg.evaluate("document.querySelector('#mAuto').click()"); pg.wait_for_timeout(300)

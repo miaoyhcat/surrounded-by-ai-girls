@@ -37,7 +37,7 @@ with sync_playwright() as p:
     # 主界面设置
     pg.click("#btnSettings"); pg.wait_for_timeout(300)
     check("A5 主界面设置打开", pg.is_visible("#settingsPanel"))
-    check("A6 设置含其他寄语", "谨以此游戏" in pg.inner_text("#settingsPanel"))
+    check("A6 设置含高中生独立研发寄语", "高中生独立研发" in pg.inner_text("#settingsPanel"))
     pg.click("#sBgm"); pg.wait_for_timeout(200)
     check("A7 主界面BGM开关", pg.evaluate("JSON.parse(localStorage.getItem('aigirls_settings')).bgm") == False)
     pg.click("#sBgm")
@@ -93,8 +93,9 @@ with sync_playwright() as p:
     menu_btn("#mAuto")
     # C2 快进
     menu_btn("#mSkip")
-    check("C2 快进开关", pg.evaluate("document.querySelector('#mSkip').classList.contains('on')"))
-    menu_btn("#mSkip")
+    pg.wait_for_timeout(400)
+    check("C2 快进开关", pg.evaluate("skipMode"))
+    pg.evaluate("stopSkip()")
     # C3 快进到选项
     menu_btn("#mSkipTo")
     pg.wait_for_timeout(6000)
@@ -105,7 +106,7 @@ with sync_playwright() as p:
     menu_btn("#mSet")
     check("C4 设置面板", pg.is_visible("#settingsPanel"))
     check("C4b 4首曲目", pg.evaluate("document.querySelectorAll('#sBgmTrack option').length") == 4)
-    check("C4c 自动速度3档", pg.evaluate("document.querySelectorAll('#sAutoSpeed option').length") == 3)
+    check("C4c 自动速度4档", pg.evaluate("document.querySelectorAll('#sAutoSpeed option').length") == 4)
     pg.evaluate("document.querySelector('#settingsClose').click()"); pg.wait_for_timeout(200)
     # C5 历史
     menu_btn("#mHist")

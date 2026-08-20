@@ -33,7 +33,10 @@ with sync_playwright() as p:
     pg.click("#titleCard"); pg.wait_for_timeout(300)
 
     # ---- 1. 推进到幕1 第30行左右，存档到槽1 ----
-    for i in range(60): pg.evaluate("next()")
+    for i in range(60):
+        if pg.evaluate("STORY[sceneIdx] && STORY[sceneIdx].lines[lineIdx] && STORY[sceneIdx].lines[lineIdx].t === 'minigame'"):
+            pg.evaluate("lineIdx++; autoSave()")
+        pg.evaluate("next()")
     pg.wait_for_timeout(300)
     s1_scene = pg.evaluate("sceneIdx"); s1_line = pg.evaluate("lineIdx")
     pg.evaluate("document.querySelector('#menuBtn').click()")
@@ -50,6 +53,8 @@ with sync_playwright() as p:
 
     # ---- 2. 继续玩到幕3，存档到槽2 ----
     for i in range(400):
+        if pg.evaluate("STORY[sceneIdx] && STORY[sceneIdx].lines[lineIdx] && STORY[sceneIdx].lines[lineIdx].t === 'minigame'"):
+            pg.evaluate("lineIdx++; autoSave()")
         pg.evaluate("next()")
         if pg.evaluate("document.getElementById('choices').style.display === 'flex'"):
             pg.evaluate("document.querySelector('#choices button').click()")
@@ -99,8 +104,13 @@ with sync_playwright() as p:
     pg.wait_for_timeout(300)
     check("读档后继续推进正常", pg.evaluate("lineIdx") > saved2["line"], f"line={pg.evaluate('lineIdx')}")
 
-    # ---- 6. choice 行存档：跳到 choice 行前一行，存档，读档后选项可点 ----
-    pg.evaluate("""(()=>{ sceneIdx = 0; lineIdx = 88; document.getElementById('cg').style.backgroundImage='url('+STORY[0].cg+')'; showLine(STORY[0].lines[88]); })()""")
+    # ---- 6. choice 行存档：跳到 choice 行前一行（跳过 minigame），存档，读档后选项可点 ----
+    pg.evaluate("""(()=>{ sceneIdx = 0;
+      const s = STORY[0];
+      const ci = s.lines.findIndex(l => l.t === 'choice');
+      let pi = ci - 1;
+      while(pi > 0 && s.lines[pi].t === 'minigame') pi--;
+      lineIdx = pi; document.getElementById('cg').style.backgroundImage='url('+s.cg+')'; showLine(s.lines[pi]); })()""")
     pg.wait_for_timeout(300)
     pg.evaluate("document.querySelector('#menuBtn').click()")
     pg.wait_for_timeout(200)
@@ -115,8 +125,10 @@ with sync_playwright() as p:
     pg.wait_for_timeout(300)
     pg.evaluate("document.querySelectorAll('#slots .slot')[2].click()")
     pg.wait_for_timeout(400)
-    # 前进几步应到 choice
+    # 前进几步应到 choice（经过 minigame 行则跳过）
     for i in range(8):
+        if pg.evaluate("STORY[sceneIdx] && STORY[sceneIdx].lines[lineIdx] && STORY[sceneIdx].lines[lineIdx].t === 'minigame'"):
+            pg.evaluate("lineIdx++; autoSave()")
         pg.evaluate("next()")
         if pg.evaluate("document.getElementById('choices').style.display === 'flex'"):
             break
@@ -146,8 +158,12 @@ with sync_playwright() as p:
     pg.wait_for_timeout(300)
     pg.evaluate("document.querySelector('#choices button').click()")
     pg.wait_for_timeout(400)
-    auto = pg.evaluate("JSON.parse(localStorage.getItem('aigirls_save_v1_auto'))")
-    check("自动存档=choice后一行", auto["scene"] == 0 and auto["line"] == 90, f"scene={auto["scene"]} line={auto["line"]}")
+    auto = pg.evaluate("""(() => {
+      const a = JSON.parse(localStorage.getItem('aigirls_save_v1_auto'));
+      const ci = STORY[0].lines.findIndex(l=>l.t==='choice');
+      return {scene: a.scene, line: a.line, ci, ok: a.scene === 0 && a.line === ci};
+    })()""")
+    check("自动存档=choice行", auto["ok"], f"scene={auto["scene"]} line={auto["line"]} (choice={auto["ci"]})")
 
     # ---- 9. 读档后 BGM 启动 ----
     pg.evaluate("""(()=>{ sceneIdx = 2; lineIdx = 10; const d = {scene:2, line:10, aff:{g:1,claude:0,whale:1}, hist:[]}; localStorage.setItem('aigirls_save_v1_auto', JSON.stringify(d)); })()""")

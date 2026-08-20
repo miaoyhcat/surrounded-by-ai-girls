@@ -1,65 +1,75 @@
-# 《完蛋，我被 AI 娘包围了》
+# 《完蛋，我被AI娘包围了》🎮
 
-> AI 娘校园恋爱喜剧 · 共通线 + 三条个人线 + 10 结局 · 目标平台 Web → Steam
-> 英文名提案：**Surrounded by AI Girls**（Steam 商店用）
-> 项目状态：**剧本/美术方案定稿中，引擎待开发**
+**键盘同居恋爱喜剧 · 独立开发 Galgame**（Windows / Android）
 
-## 一句话
+> 2022 年的冬夜，你打开了那个"据说什么都会"的 AI 聊天框。
+> 从此，你的键盘上住进了三个"AI娘"——
+> 她们会吃错字、会记仇、会在你熬夜时把屏幕调暗，
+> 然后在你毕业那天，问你：**"明天，我们住哪？"**
 
-2022 到 2026，一个普通大学生被接二连三的"转学生"搅得天翻地覆：万能生徒会长 GPT 娘、傲娇伦理委员长 Claude 娘、特困生技术宅鲸鱼娘。白天是同学，晚上是聊天窗口里的常客。毕业前，你必须决定带走谁——或者，谁都不选。
+---
 
-## 核心设定
+## 🎯 游戏介绍
 
-- **换工具不换人**：Codex、Claude Code、OpenClaw 换来换去，背后调用的永远是同一位她——感情就是一次次 API 调用累积出来的
-- **真实 AI 史为暗线**：2022 ChatGPT 破壳 → 2023 GPT-4/宫斗/百模大战 → 2024 Sora/Claude 3/Her 时刻 → 2025 DeepSeek 屠榜/编程元年 → 2026 OpenClaw 浪潮
-- **玩法**：聊天窗口式自由对话（LLM 驱动）+ 章节选项 + 羁绊值 + 10 结局图鉴 + 语音（每娘一声线）
+- **类型**：剧情向恋爱喜剧 Galgame（分支选择 + 多结局）
+- **平台**：Windows（Electron）/ Android（Capacitor，横屏）
+- **内容**：
+  - 📖 15 个章节 · 660+ 句全配音台词
+  - 🎙️ 三角色独立配音（GPT娘 / 鲸鱼娘 / Claude娘）
+  - 🎨 21 张剧情 CG · 回忆相册
+  - 🕹️ 3 个内置小游戏（贪吃蛇 / 2048 / 俄罗斯方块）
+  - 💾 3 槽手动存档 + 自动存档 · 历史回跳
+  - 🎵 多首 BGM + 音效
+- **开发者**：独立一人完成（剧情 / 配音 / 美术 / 前后端）
 
-## 目录结构
+## 🖥️ 运行方式
 
-```
-ai-galgame/
-├── README.md                 # 本文件
-├── docs/
-│   ├── outline.md            # 剧情大纲（v1.3）
-│   ├── art_plan.md           # 美术管线方案
-│   ├── cg_list.md            # CG 插画清单（给画师）
-│   ├── research/             # 形象调研存档（B站流传形象参考图）
-│   └── steam/
-│       └── steam_launch_plan.md  # Steam 上架规划（AI 披露/物料/定价）
-├── assets/                   # ★ 美术资源（画师产出放这里）
-│   ├── characters/           # 角色立绘（whale/ gpt/ claude/ 各一目录）
-│   │   └── _placeholder_svg/ # 早期 SVG 占位稿（已废弃，仅存档）
-│   ├── cg/                   # 剧情 CG
-│   ├── ui/                   # UI 素材（图标/框体/按钮）
-│   ├── icon.png              # 游戏图标 ← 画师第一张产出
-│   └── audio/                # BGM/音效（music-maker 管线）
-├── src/
-│   ├── server/               # 后端：FastAPI + DeepSeek + edge-tts
-│   │   └── server.py
-│   ├── web/                  # 前端：聊天窗口/桌面场景（静态页）
-│   │   └── static/
-│   └── data/                 # 剧情数据（角色卡/章节剧本/结局表）
-├── scripts/                  # 工具脚本（打包/部署/素材检查）
-└── build/                    # 打包产物（Steam 用 Electron 包）
+### 直接玩（推荐）
+- **Windows**：下载 Release 中的 `完蛋我被AI娘包围了_Windows_v0.1.0_TapTap.zip`，解压后运行 `完蛋我被AI娘包围了.exe`
+- **Android**：下载 Release 中的 `完蛋我被AI娘包围了-安卓版-v0.1.0.apk` 直接安装（包名 `com.aigirls.galgame`）
+
+### 从源码运行（网页版）
+```bash
+cd src/web/demo
+python -m http.server 8899
+# 浏览器打开 http://127.0.0.1:8899/
 ```
 
-## 资源接入约定（重要）
+## 📂 项目结构
 
-- 画师产出 → 丢进 `assets/` 对应目录（立绘 `characters/<id>/`，CG `cg/`，图标 `icon.png`）
-- 推荐规格：头像 PNG 透明底 ≥1024px 竖版 3:4；CG 横版 16:9 ≥1920 宽；图标 ≥512px
-- 文件就位后游戏自动使用（文件名约定见 `docs/art_plan.md`）
+```
+src/web/demo/    网页版游戏源码（纯 HTML/CSS/JS，零依赖）
+  ├── index.html   主菜单（开始/继续/相册/设置/赞赏）
+  ├── game.html    游戏引擎（剧情/配音/存档/小游戏）
+  ├── data.js      全部剧情数据（15 章 660+ 行台词）
+  ├── assets/      CG 立绘与图片
+  ├── voice/       三角色配音（662 句 mp3）
+  ├── audio/       BGM 与音效
+  └── minigames/   内置小游戏（开源嵌入）
+electron/         Windows 打包工程（Electron）
+mobile/           Android 打包工程（Capacitor）
+tools/            开发工具脚本（TTS 合成/音频处理/测试）
+```
 
-## 当前状态
+## 🛠️ 技术栈
 
-- [x] 剧情大纲 v1.3（角色立体化 + 10 结局 + Codex/Claude Code）
-- [x] 美术管线方案 + 形象基准（鲸鱼尾鳍/花环/星芒）
-- [x] Steam 上架规划
-- [ ] 图标/立绘/CG（画师进行中）
-- [ ] 游戏引擎（对话/羁绊/结局/存档）
-- [ ] 聊天界面 + 桌面场景
-- [ ] Web 试玩版 → Steam 打包
+- 前端：原生 HTML/CSS/JS（零依赖，可直接运行）
+- PC 打包：Electron
+- Android 打包：Capacitor 6
+- 配音：IndexTTS-2.5（B 站开源 TTS）+ faster-whisper 质检
+- 参考音色：可莉（鲸鱼娘）/ 卡齐娜（GPT娘）/ 琳妮特（Claude娘）
 
-## 密钥铁律
+## 📜 版权与开源
 
-- 任何 API key 只走环境变量，绝不进仓库（见 .gitignore）
-- 生图只用 Seedream；视觉分析可用 GLM-4.5（免费）
+- 本游戏所用素材来自网络与各大开源项目，如有版权问题请联系：2233873332@qq.com
+- 配音为 TTS 合成，参考音色仅用于角色演绎
+- [隐私政策](privacy.html)
+
+## 💬 联系与反馈
+
+- 邮箱：2233873332@qq.com
+- 欢迎 Star / Issue / 分享给朋友！
+
+---
+
+**—— 高中生独立研发，感谢你的支持 ❤️**

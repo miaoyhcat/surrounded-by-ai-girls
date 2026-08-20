@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Snake</title>
+    <link rel="stylesheet" href="design/style.css" />
+    <script type="module" src="source/Main.js"></script>
+</head>
+
+<body>
+    <div id="container" class="mainScreen">
+        <div class="board"></div>
+        <div class="game">
+            <div class="start"></div>
+            <div class="snake"></div>
+            <div class="food">
+                <div class="foodShadow">
+                    <div></div><div></div>
+                    <div></div><div></div>
+                </div>
+                <div class="foodBody">
+                    <div></div><div></div>
+                    <div></div><div></div>
+                </div>
+            </div>
+            <div class="score"></div>
+            <div class="time"></div>
+            <div class="level"></div>
+        </div>
+
+        <div class="messages">
+            <div class="text">
+                <h2>贪吃蛇</h2>
+                <p>选择关卡</p>
+            </div>
+
+            <div class="main help">
+                <div class="demo"></div>
+                <ul>
+                    <li><a href="#" data-action="play" data-level="1">简<u>单</u></a></li>
+                    <li><a href="#" data-action="play" data-level="2">普<u>通</u></a></li>
+                    <li><a href="#" data-action="play" data-level="3">困<u>难</u></a></li>
+                    <li><a href="#" data-action="play" data-level="4">超<u>难</u></a></li>
+                    <li><a href="#" data-action="highScores">排<u>行</u>榜</a></li>
+                    <li><a href="#" data-action="help"><u>帮</u>助</a></li>
+                    <li><a href="#" data-action="restore">继<u>续</u></a></li>
+                </ul>
+                <div class="audio" data-action="sound">
+                    <div class="waves">
+                        <div></div><div></div>
+                        <div></div><div></div>
+                    </div>
+                    <div class="triangle"></div>
+                    <div class="box"></div>
+                </div>
+            </div>
+
+            <ul class="pause">
+                <li><a href="#" data-action="endPause"><u>继</u>续</a></li>
+                <li><a href="#" data-action="finishGame"><u>新</u>游戏</a></li>
+            </ul>
+
+            <div class="input">
+                <input type="text" placeholder="名字" />
+                <a class="submit" href="#" data-action="save"><u>确</u>定</a>
+                <a class="restart" href="#" data-action="newGame"><u>N</u>ew Game</a>
+            </div>
+
+            <div class="high">
+                <div class="scores"></div>
+                <div class="none">暂无记录</div>
+                <ul>
+                    <li><a href="#" data-action="showScores" data-level="1"><u>简</u>单</a></li>
+                    <li><a href="#" data-action="showScores" data-level="2"><u>普</u>通</a></li>
+                    <li><a href="#" data-action="showScores" data-level="3">困<u>难</u></a></li>
+                    <li><a href="#" data-action="showScores" data-level="4">超<u>难</u></a></li>
+                    <li><a href="#" data-action="mainScreen"><u>返</u>回</a></li>
+                </ul>
+            </div>
+
+            <div class="controls">
+                <ol>
+                    <li>用方向键或 WASD 控制小蛇移动。</li>
+                    <li>空格键或 P 暂停游戏。</li>
+                    <li>M 键开关声音。</li>
+                    <li>用鼠标点击或键盘（带下划线的字母）来操作界面。</li>
+                </ol>
+                <a href="#" data-action="mainScreen"><u>B</u>ack</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

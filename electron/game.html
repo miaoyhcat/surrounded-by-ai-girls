@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完蛋，我被AI娘包围了</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden;user-select:none;background:#0B1020;color:#EDF0F8}
+  #stage{position:fixed;inset:0}
+  #clickLayer{position:fixed;inset:0;z-index:10;cursor:pointer}
+  #cg{position:absolute;inset:0;background:center/contain no-repeat;transition:opacity .3s;background-color:#0B1020}
+  /* 顶部 */
+  #top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;pointer-events:none}
+  #sceneInfo{font-size:12px;letter-spacing:.14em;color:#9AA3B8;background:rgba(10,14,28,.7);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:7px 16px;backdrop-filter:blur(4px)}
+  #aff{display:flex;gap:10px;font-size:12px;letter-spacing:.06em}
+  #aff span{background:rgba(10,14,28,.75);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:7px 14px;backdrop-filter:blur(4px)}
+  #aff .n{color:#FFD27A}
+  #menuBtn{position:fixed;right:4vw;bottom:2.5vh;z-index:22;pointer-events:auto;font-family:inherit;font-size:13px;letter-spacing:.2em;color:#EDF0F8;background:rgba(10,14,28,.8);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 18px;cursor:pointer;backdrop-filter:blur(4px)}
+  #menuBtn:hover{border-color:#FFD27A}
+  /* 对话框 */
+  #box{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:0 4vw 3.5vh}
+  #boxInner{max-width:900px;margin:0 auto;background:rgba(10,14,28,.88);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:20px 26px 22px;backdrop-filter:blur(10px);min-height:150px;cursor:pointer;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+  #name{display:inline-block;font-size:13px;letter-spacing:.2em;color:#9AA3B8;margin-bottom:8px}
+  #name .c{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+  #text{font-size:clamp(15px,2.4vw,18px);line-height:2;color:#EDF0F8;min-height:72px}
+  #text .cur{display:inline-block;width:2px;height:1.1em;background:#EDF0F8;vertical-align:-2px;animation:blink .8s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:2.8vh;z-index:21;font-size:11px;letter-spacing:.2em;color:#5C6580;pointer-events:none;opacity:.7}
+  /* 选项 */
+  #choices{position:fixed;left:0;right:0;bottom:22vh;z-index:22;display:none;flex-direction:column;gap:12px;align-items:center;padding:0 4vw}
+  #choices .q{font-size:clamp(14.5px,2vw,17px);letter-spacing:.14em;color:#FFE9B8;margin-bottom:6px;text-align:center;line-height:1.9;font-weight:600;background:linear-gradient(135deg,rgba(255,210,122,.14),rgba(255,210,122,.05));border:1px solid rgba(255,210,122,.35);border-radius:14px;padding:12px 26px;min-width:min(420px,80vw);backdrop-filter:blur(8px);box-shadow:0 0 24px rgba(255,210,122,.12),inset 0 0 18px rgba(255,210,122,.05)}
+  #choices button{font-family:inherit;font-size:15px;letter-spacing:.1em;color:#EDF0F8;background:rgba(14,19,36,.92);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:14px 30px;cursor:pointer;min-width:min(420px,80vw);transition:all .2s;backdrop-filter:blur(6px)}
+  #choices button:hover{border-color:#FFD27A;transform:translateX(4px);background:rgba(30,38,66,.95)}
+  /* 转场 */
+  #trans{position:fixed;inset:0;z-index:25;background:rgba(6,9,18,.97);display:none;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;padding:0 10vw;text-align:center}
+  #trans .d{font-size:12px;letter-spacing:.4em;color:#7D86A0;margin-bottom:22px}
+  #trans .t{font-size:clamp(15px,2.4vw,19px);line-height:2.2;color:#D5DBEA;max-width:720px}
+  /* 标题卡 */
+  #titleCard{position:fixed;inset:0;z-index:30;background:rgba(6,9,18,.96);display:none;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;text-align:center}
+  #titleCard .d{font-size:12px;letter-spacing:.45em;color:#7D86A0;margin-bottom:20px}
+  #titleCard h2{font-size:clamp(22px,4vw,34px);letter-spacing:.14em;font-weight:700;color:#EDF0F8}
+  #titleCard .go{margin-top:34px;font-size:12px;letter-spacing:.3em;color:#5C6580;animation:blink 1.6s steps(1) infinite}
+  /* 剧情小游戏（iframe 嵌入开源游戏） */
+  #minigame{position:fixed;inset:0;z-index:34;background:radial-gradient(120% 100% at 50% 20%,#1B2440 0%,#0A0F1E 70%);display:none;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
+  #mgIntro{text-align:center;padding:0 8vw}
+  #mgIntro .d{font-size:11px;letter-spacing:.4em;color:#7D86A0;margin-bottom:14px}
+  #mgIntro h2{font-size:clamp(20px,3.6vw,30px);letter-spacing:.14em;font-weight:700;color:#EDF0F8;margin-bottom:10px}
+  #mgIntro p{font-size:13.5px;line-height:1.9;color:#A9B2CC;max-width:560px;margin:0 auto}
+  #mgIntro .go{margin-top:26px;font-size:12px;letter-spacing:.3em;color:#FFD27A;animation:blink 1.6s steps(1) infinite}
+  #mgFrameWrap{display:none;position:relative;width:min(900px,94vw);height:min(560px,76vh);background:#fff;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden}
+  #mgFrame{width:100%;height:100%;border:none}
+  #mgTipBar{position:absolute;left:0;right:0;top:0;z-index:6;background:rgba(10,14,28,.92);color:#D5DBEA;font-size:12.5px;letter-spacing:.06em;text-align:center;padding:8px 70px 8px 14px;line-height:1.6;pointer-events:none}
+  #mgDone{position:absolute;right:14px;top:14px;z-index:7;font-family:inherit;font-size:12.5px;letter-spacing:.2em;color:#0B1020;background:#FFD27A;border:none;border-radius:99px;padding:9px 22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+  #mgDone:hover{background:#FFE3A8}
+  /* 名字面板 */
+  #namePanel{position:fixed;inset:0;z-index:45;background:rgba(4,7,14,.94);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+  #namePanel h3{font-size:16px;letter-spacing:.5em;color:#EDF0F8}
+  #namePanel .sub{font-size:12px;letter-spacing:.2em;color:#7D86A0}
+  #nameInput{font-family:inherit;font-size:20px;letter-spacing:.2em;text-align:center;color:#EDF0F8;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:12px 24px;width:min(280px,70vw);outline:none}
+  #nameInput:focus{border-color:#FFD27A}
+  #nameOk{font-family:inherit;font-size:14px;letter-spacing:.3em;color:#0B1020;background:#FFD27A;border:none;border-radius:99px;padding:13px 48px;cursor:pointer}
+  #nameOk:hover{background:#FFE3A8}
+  /* 结局 */
+  #ending{position:fixed;inset:0;z-index:40;background:radial-gradient(120% 100% at 50% 0%,#141B30,#070B16);display:none;align-items:center;justify-content:center;padding:6vh 6vw;overflow:auto}
+  #endingInner{max-width:760px;text-align:center}
+  #endingInner .k{font-size:12px;letter-spacing:.5em;color:#7D86A0}
+  #endingInner h2{font-size:clamp(26px,4.5vw,40px);letter-spacing:.12em;margin:16px 0 8px;color:#EDF0F8}
+  #endingInner .txt{font-size:clamp(15px,2.3vw,17.5px);line-height:2.2;color:#C9D0E0;margin-top:18px;white-space:pre-line}
+  #endingInner .losers{margin-top:30px;border-top:1px solid rgba(255,255,255,.12);padding-top:22px;font-size:13.5px;color:#8B93A7;line-height:2.4}
+  #endingInner .report{margin-top:30px;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:18px 24px;font-size:13px;color:#9AA3B8;letter-spacing:.1em;background:rgba(255,255,255,.03)}
+  #endingInner .btn{margin-top:30px;font-family:inherit;font-size:14px;letter-spacing:.25em;color:#0B1020;background:#EDF0F8;border:none;border-radius:99px;padding:15px 44px;cursor:pointer}
+  #endingInner .btn:hover{background:#FFD27A}
+  /* 菜单面板 */
+  #menuPanel{position:fixed;top:70px;right:18px;z-index:35;display:none;flex-direction:column;gap:8px;min-width:230px;max-height:calc(100vh - 100px);overflow-y:auto;background:rgba(12,17,33,.96);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px;backdrop-filter:blur(10px)}
+  #menuPanel button{font-family:inherit;font-size:13px;letter-spacing:.18em;color:#EDF0F8;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:11px 16px;cursor:pointer;text-align:left}
+  #menuPanel button:hover{background:rgba(255,255,255,.14)}
+  #menuPanel button.on{color:#0B1020;background:#FFD27A}
+  /* 历史记录 */
+  #history{position:fixed;inset:0;z-index:38;background:rgba(4,7,14,.92);display:none;flex-direction:column;padding:5vh 6vw}
+  #history h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:18px}
+  #histList{flex:1;overflow-y:auto;max-width:820px;width:100%;margin:0 auto;padding-right:10px}
+  #histList .hrow{margin-bottom:14px;line-height:1.9;font-size:14.5px}
+  #histList .hn{display:inline-block;min-width:76px;font-size:12px;letter-spacing:.15em;color:#FFD27A;margin-right:12px;vertical-align:top}
+  #histList .hn.narr{color:#7D86A0}
+  #histList .ht{color:#D5DBEA}
+  #history .close{align-self:center;margin-top:18px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+  /* 存档面板 */
+  #savePanel{position:fixed;inset:0;z-index:39;background:rgba(4,7,14,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
+  #savePanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:20px}
+  #slots{display:flex;flex-direction:column;gap:10px;width:min(520px,90vw);max-height:62vh;overflow-y:auto;padding-right:6px}
+  #slots .slot{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px 18px;cursor:pointer}
+  #slots .slot:hover{background:rgba(255,255,255,.12)}
+  #slots .slot .info{font-size:12.5px;color:#C9D0E0;letter-spacing:.06em}
+  #slots .slot .info .t{color:#7D86A0;font-size:11px}
+  #slots .slot .act{font-size:12px;letter-spacing:.2em;color:#FFD27A}
+  #savePanel .close{margin-top:20px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+  /* 设置面板 */
+  #settingsPanel{position:fixed;inset:0;z-index:41;background:rgba(4,7,14,.94);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
+  #settingsPanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:24px}
+  #setBox{display:flex;flex-direction:column;gap:16px;width:min(480px,88vw);max-height:74vh;overflow-y:auto;padding-right:8px}
+  #setBox .row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:14px 18px}
+  #setBox .row label{font-size:13.5px;letter-spacing:.12em;color:#C9D0E0}
+  #setBox .row label .sub{display:block;font-size:11px;color:#7D86A0;letter-spacing:.08em;margin-top:4px}
+  #setBox .row .ctl{display:flex;align-items:center;gap:10px}
+  #setBox button.toggle{font-family:inherit;font-size:12.5px;letter-spacing:.15em;color:#EDF0F8;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:8px 20px;cursor:pointer}
+  #setBox button.toggle.on{color:#0B1020;background:#FFD27A;border-color:#FFD27A}
+  #setBox select{font-family:inherit;font-size:12.5px;color:#EDF0F8;background:#1A2138;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 12px;outline:none}
+  #setBox input[type=range]{width:130px;accent-color:#FFD27A}
+  #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+
+  /* ─── 为爱发电 · 赞赏面板 ─── */
+  #supportPanel{position:fixed;inset:0;z-index:46;background:rgba(4,7,14,.95);display:none;flex-direction:column;align-items:center;justify-content:center;padding:4vh 5vw}
+  #supportPanel h3{font-size:15px;letter-spacing:.5em;color:#FFD27A;margin-bottom:8px}
+  #supportPanel .slogan{font-size:12.5px;letter-spacing:.1em;color:#9AA3B8;line-height:2.1;text-align:center;max-width:560px;margin-bottom:18px}
+  #supportPanel .slogan b{color:#EDF0F8}
+  #supportBox{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+  #supportBox .pay{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px 18px}
+  #supportBox .pay img{width:min(200px,40vw);height:auto;max-height:270px;border-radius:10px;object-fit:contain;background:#fff}
+  #supportBox .pay span{font-size:12.5px;letter-spacing:.25em;color:#C9D0E0}
+  #supportPanel .tip{font-size:11.5px;color:#7D86A0;letter-spacing:.06em;margin-top:14px;text-align:center;line-height:1.9}
+  #supportPanel .close{margin-top:20px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:11px 36px;cursor:pointer}
+  #histList .hrow{cursor:pointer}
+  #histList .hrow:hover .ht{color:#FFD27A}
+  #histList .hrow .jump{display:none;font-size:10.5px;letter-spacing:.2em;color:#7D86A0;margin-left:8px}
+  #histList .hrow:hover .jump{display:inline}
+
+  /* 矮屏适配（手机横屏）：菜单紧凑 + 对话框缩小半透明（不挡 CG） */
+  @media (max-height: 520px){
+    #menuPanel{top:10px;gap:4px;padding:10px;min-width:200px}
+    #menuPanel button{padding:7px 14px;font-size:12px}
+    #box{padding:0 3vw 2vh}
+    #boxInner{min-height:88px;padding:10px 14px 12px;background:rgba(8,12,24,.68);border-radius:12px}
+    #name{font-size:12px;margin-bottom:3px}
+    #text{font-size:clamp(13px,2vw,15px);min-height:44px;line-height:1.7}
+    #hint{bottom:2.2vh}
+    #menuBtn{right:3vw;bottom:2vh;padding:7px 14px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div id="stage"><div id="cg"></div></div>
+<div id="clickLayer"></div>
+
+<div id="top">
+  <div id="sceneInfo"></div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <div id="aff"></div>
+  </div>
+</div>
+
+<div id="box"><div id="boxInner"><div id="name"></div><div id="text"></div></div></div>
+<div id="hint">点击继续 ▸</div>
+<button id="menuBtn">☰ 菜单</button>
+
+<div id="choices"><div class="q"></div></div>
+<div id="trans"><div class="d" id="transDate"></div><div class="t" id="transText"></div></div>
+<div id="titleCard"><div class="d" id="tcDate"></div><h2 id="tcTitle"></h2><div class="go">点击开始 ▸</div></div>
+
+<!-- 剧情小游戏（iframe 嵌入开源游戏） -->
+<div id="minigame">
+  <div id="mgIntro">
+    <div class="d" id="mgIntroD"></div>
+    <h2 id="mgIntroT"></h2>
+    <p id="mgIntroP"></p>
+    <div class="go">准备好了就点一下 ▸</div>
+  </div>
+  <div id="mgFrameWrap">
+    <div id="mgTipBar"></div>
+    <iframe id="mgFrame" title="minigame"></iframe>
+    <button id="mgDone">玩够了，继续剧情 ▸</button>
+  </div>
+</div>
+
+<div id="menuPanel">
+  <button id="mAuto">自动播放</button>
+  <button id="mSkip">快进（跳过已读）</button>
+  <button id="mSkipTo">⏩ 快进到选项</button>
+  <button id="mSet">⚙ 设 置</button>
+  <button id="mHist">历史记录</button>
+  <button id="mSave">存档</button>
+  <button id="mName">改 名</button>
+  <button id="mLoad">读档</button>
+  <button id="mHome">返回主界面</button>
+</div>
+
+<div id="settingsPanel">
+  <h3>设 置</h3>
+  <div id="setBox">
+    <div class="row"><label>背景音乐<span class="sub">温柔钢琴曲 · 循环播放</span></label><div class="ctl"><button class="toggle" id="sBgm">开</button></div></div>
+    <div class="row"><label>音 效<span class="sub">打字/点击反馈音</span></label><div class="ctl"><button class="toggle" id="sSfx">开</button></div></div>
+    <div class="row"><label>自动切换BGM<span class="sub">随剧情场景切换曲目</span></label><div class="ctl"><button class="toggle" id="sAutoBgm">开</button></div></div>
+    <div class="row"><label>角色配音<span class="sub">AI娘的台词语音（可关闭）</span></label><div class="ctl"><button class="toggle" id="sVoice">开</button></div></div>
+    <div class="row"><label>配音音量<span class="sub">角色台词音量</span></label><div class="ctl"><input type="range" id="sVoiceVol" min="0" max="100" value="80"></div></div>
+    <div class="row"><label>音乐音量</label><div class="ctl"><input type="range" id="sBgmVol" min="0" max="100" value="35"></div></div>
+    <div class="row"><label>切换曲目</label><div class="ctl"><select id="sBgmTrack">
+      <option value="acoustic54">曲目 Ⅰ · 温馨木吉他</option>
+      <option value="acoustic53">曲目 Ⅱ · 晨光</option>
+      <option value="healing16">曲目 Ⅲ · 治愈时光</option>
+      <option value="healing14">曲目 Ⅳ · 安心</option>
+    </select></div></div>
+    <div class="row"><label>自动播放速度<span class="sub">秒/行</span></label><div class="ctl"><select id="sAutoSpeed">
+      <option value="1">慢 · 5.2</option>
+      <option value="2" selected>标准 · 3.6</option>
+      <option value="3">快 · 2.2</option>
+      <option value="4">自定义</option>
+    </select><input id="sAutoCustom" type="number" min="1" max="30" step="0.5" value="3" style="display:none;width:64px;font-family:inherit;font-size:12.5px;color:#EDF0F8;background:#1A2138;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 10px;outline:none"></div></div>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:8px"><label>感 谢 名 单</label>
+      <div style="font-size:12px;line-height:2;color:#8B93A7;letter-spacing:.05em">
+        倾情指导：<span style="color:#FFD27A">世界欠我一缕晨曦</span><br>
+        友情赞助：<span style="color:#FFD27A">一叶知秋</span><br>
+        感谢测试：<span style="color:#FFD27A">剑与兔 ｜ 坦克300车主王小平 ｜ 无憾 ｜ 半字 ｜ 莫名 ｜ link ｜ 0402 ｜ 杀戮猿乐 ｜ 提灯思旧念 ｜ 浮士德猫猫TV</span>
+      </div>
+    </div>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:8px"><label>关 于 版 权</label>
+      <div style="font-size:12px;line-height:2;color:#8B93A7;letter-spacing:.05em">
+        本游戏由一位<span style="color:#FFD27A">高中生独立研发</span>，<br>
+        从 CG、配音、剧情到前后端，都由一人完成。<br><br>
+        本游戏所用素材都来自网络和各大开源项目，<br>
+        如有侵权或不对的地方请联系我，我会光速整改。<br><br>
+        如果你有什么好的想法、问题或者建议，也可以来联系我：<br>
+        <span style="color:#FFD27A">vx: miao48075490</span> ｜ <span style="color:#FFD27A">q: 3277681859</span><br><br>
+        还有——如果哪天吃不上饭了，也可以来找我，<br>
+        <span style="color:#FFD27A">我请你免费吃碗面。</span>
+      </div>
+    </div>
+    <div class="row" style="border-color:rgba(255,210,122,.45);background:rgba(255,210,122,.08)">
+      <label>为 爱 发 电<span class="sub" style="color:#FFD27A">本游戏免费开放 · 如果喜欢，欢迎支持一下</span></label>
+      <div class="ctl"><button class="toggle on" id="sSupport" style="background:#FFD27A;color:#0B1020;border-color:#FFD27A">支 持</button></div>
+    </div>
+  </div>
+  <button class="close" id="settingsClose">关 闭</button>
+</div>
+<div id="supportPanel">
+  <h3>为 爱 发 电</h3>
+  <div class="slogan">
+    本游戏为<b>为爱发电</b>，如果您愿意给游戏研发回血<br>
+    和给后续的 DLC 续命，可以点下面支持一下。<br><br>
+    游戏如果反响好的话，后面可能会出<b>其他的模型娘</b>，<br>
+    或者<b>增加现有模型娘的剧情</b>，还可能做<b>女性向的游戏</b>。
+  </div>
+  <div id="supportBox">
+    <div class="pay"><img src="assets/support_wechat.png" alt="微信赞赏码"><span>微 信</span></div>
+    <div class="pay"><img src="assets/support_alipay.png" alt="支付宝赞赏码"><span>支付宝</span></div>
+  </div>
+  <div class="tip">金额随意，心意无价 · 每一份支持都会变成新的剧情<br>也可以把游戏推荐给朋友，这也是很好的支持</div>
+  <button class="close" id="supportClose">收 起</button>
+</div>
+
+<div id="history">
+  <h3>历 史 记 录</h3>
+  <div id="histList"></div>
+  <button class="close" id="histClose">关 闭</button>
+</div>
+
+<div id="savePanel">
+  <h3 id="saveTitle">存 档</h3>
+  <div id="slots"></div>
+  <button class="close" id="saveClose">关 闭</button>
+</div>
+
+<div id="namePanel">
+  <h3>你 的 名 字</h3>
+  <p class="sub">四年里，她们会这样叫你</p>
+  <input id="nameInput" maxlength="8">
+  <button id="nameOk">确 定</button>
+</div>
+
+<div id="ending">
+  <div id="endingInner">
+    <div class="k">结 局</div>
+    <h2 id="endTitle"></h2>
+    <div class="txt" id="endText"></div>
+    <div class="losers" id="endLosers"></div>
+    <div class="report" id="endReport"></div>
+    <button class="btn" id="endHome">返回主界面</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const NAME_COLOR = {g:"#FFD27A", claude:"#F0A878", whale:"#7FB0FF", you:"#9FB4E8", oclaw:"#A8B8D8"};
+let PLAYER_NAME = localStorage.getItem("aigirls_name") || "陈默";
+const SPEAKER = {g:"GPT娘", claude:"Claude娘", whale:"鲸鱼娘", oclaw:"OpenClaw"};
+const AFF_NAME = {g:"GPT娘", claude:"Claude娘", whale:"鲸鱼娘"};
+const SAVE_KEY = "aigirls_save_v1";
+
+let sceneIdx = 0, lineIdx = 0, typing = false, inChoice = false, inTransition = false, inTitle = false;
+let autoMode = false, skipMode = false, autoTimer = null, history = [];
+let currentBg = null; // 行级 CG 覆盖（line.cg 设置后持续生效，直到再次设置）
+
+// ─── 设置（BGM / 自动播放速度） ───
+const SET_KEY = "aigirls_settings";
+let settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:"acoustic54", autoSpeed:2, autoCustom:3, sfx:true, autoBgm:true, voice:true, voiceVol:80}, JSON.parse(localStorage.getItem(SET_KEY)||"{}"));
+function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
+let bgmAudio = new Audio(), bgmStarted = false;
+
+function applyBgm(){
+  bgmAudio.src = "audio/bgm_" + settings.bgmTrack + ".mp3";
+  bgmAudio.loop = true;
+  bgmAudio.volume = settings.bgmVol / 100;
+  if(settings.bgm){ bgmAudio.play().catch(()=>{}); } else { bgmAudio.pause(); }
+}
+function ensureBgm(){
+  if(bgmStarted) return;
+  bgmStarted = true;
+  applyBgm();
+}
+
+const $ = id => document.getElementById(id);
+function showAff(){
+  $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
+}
+// 读取玩家电脑配置（鲸鱼娘"看新家"台词用；拿不到返回 null 走兜底文案）
+function getPCConfig(){
+  try{
+    const parts = [];
+    const pc = (typeof window !== "undefined" && window.pcInfo) ? window.pcInfo : null;
+    // CPU：型号（preload/os 模块）+ 核数（navigator）
+    const cores = (pc && pc.cpuCount) || navigator.hardwareConcurrency || null;
+    const cpuModel = (pc && pc.cpuModel) || null;
+    if(cpuModel && cores) parts.push(cpuModel + " · " + cores + " 核");
+    else if(cpuModel) parts.push(cpuModel);
+    else if(cores) parts.push(cores + " 核 CPU");
+    // 内存：精确字节（preload/os.totalmem）→ GB；fallback navigator.deviceMemory
+    let memGB = null;
+    if(pc && pc.totalMemBytes){
+      memGB = Math.round(pc.totalMemBytes / 1073741824); // 向上取整到整数 GB（16GB 内存显示 16，不显示 15.8）
+    } else if(navigator.deviceMemory){
+      memGB = navigator.deviceMemory;
+    }
+    if(memGB) parts.push(memGB + " GB 内存");
+    // 显卡（WebGL 报告真实渲染器，含完整型号）
+    let gpu = null;
+    try{
+      const c = document.createElement("canvas");
+      const gl = c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl");
+      if(gl){
+        const ext = gl.getExtension("WEBGL_debug_renderer_info");
+        if(ext){
+          const raw = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "");
+          let cleaned = raw.replace(/^ANGLE\s*\(?\s*/i, "").replace(/Direct3D.*$/i, "").replace(/\(0x[0-9A-Fa-f]+\)/g, "").trim();
+          // raw 形如 "NVIDIA, NVIDIA GeForce RTX 5060"——跳过逗号前的品牌名，取 "品牌 + 型号"
+          const m = cleaned.match(/(?:NVIDIA|AMD|Intel|Apple|Qualcomm|ARM),\s*((?:NVIDIA|AMD|Intel|Apple|Qualcomm|ARM)[A-Za-z0-9 一-龥\-]*)/i) ||
+                    cleaned.match(/((?:NVIDIA|AMD|Intel|Apple|Qualcomm|ARM)[A-Za-z0-9 一-龥\-]*)/i);
+          if(m) gpu = (m[1] || m[0]).replace(/\s+/g, " ").trim();
+        }
+      }
+    }catch(e){}
+    if(gpu) parts.push(gpu + " 显卡");
+    // 显示器：分辨率（物理 CSS 像素 × 缩放比）+ 色深
+    let disp = null;
+    try{
+      const w = screen.width || 0, h = screen.height || 0;
+      const dpr = window.devicePixelRatio || 1;
+      if(w && h){
+        const rw = Math.round(w * dpr), rh = Math.round(h * dpr);
+        disp = rw + "×" + rh + " 屏幕";
+        if(dpr > 1) disp += "（" + dpr + "× 缩放）";
+        const cd = screen.colorDepth || 0;
+        if(cd) disp += " · " + cd + " 位色";
+      }
+    }catch(e){}
+    if(disp) parts.push(disp);
+    // 系统平台 + 版本（preload 的 release / userAgentData）
+    let os = null;
+    try{
+      const ua = navigator.userAgent || "";
+      let ver = null;
+      if(pc && pc.release){
+        const r = String(pc.release);
+        // Windows 10.0.22000+ = Win11
+        if(pc.platform === "win32"){
+          os = parseFloat(r.split(".")[2] || 0) >= 22000 ? "Windows 11" : "Windows 10";
+        } else if(pc.platform === "darwin"){
+          os = "macOS";
+        } else if(pc.platform === "linux"){
+          os = "Linux";
+        }
+      }
+      if(!os){
+        if(/Windows/i.test(ua)) os = "Windows";
+        else if(/Mac OS X|Macintosh/i.test(ua)) os = "macOS";
+        else if(/Linux/i.test(ua)) os = "Linux";
+      }
+    }catch(e){}
+    if(os) parts.push(os + " 系统");
+    if(parts.length === 0) return null;
+    return parts.join("，");
+  }catch(e){ return null; }
+}
+function displayText(t){ return t.split("陈默").join(PLAYER_NAME).split("{PC}").join(getPCConfig() || "一台普通的电脑"); }
+function pushHistory(line, extra){
+  if(line.t === "transition") return;
+  const speaker = line.t === "narr" ? "" : (line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""));
+  const rec = {speaker, text: displayText(line.text), scene: sceneIdx, line: lineIdx, t: line.t};
+  if(extra) Object.assign(rec, extra);
+  history.push(rec);
+  if(history.length > 500) history.shift();
+}
+function typeText(el, text, done){
+  clearInterval(window.__iv); // 清理上一个打字定时器（防止切场景/读档后残留定时器继续写旧文本）
+  typing = true; el.innerHTML = "";
+  el.dataset.full = text; // 保存完整文本：快速点击时直接显示全文
+  let i = 0;
+  window.__iv = setInterval(()=>{
+    i += skipMode ? 3 : 1;
+    el.innerHTML = text.slice(0, i) + '<span class="cur"></span>';
+    if(i >= text.length){ clearInterval(window.__iv); typing = false; done && done(); }
+  }, skipMode ? 3 : 34);
+}
+
+function showTitle(scene){
+  inTitle = true;
+  if(settings.autoBgm && scene.bgm && scene.bgm !== settings.bgmTrack){
+    settings.bgmTrack = scene.bgm; saveSettings(); applyBgm(); // 场景专属 BGM
+  }
+  $("tcDate").textContent = scene.date;
+  $("tcTitle").textContent = scene.title;
+  $("titleCard").style.display = "flex";
+  // 回忆相册：解锁当前场景 CG
+  try{
+    const unlock = JSON.parse(localStorage.getItem("aigirls_cg_unlocked") || "{}");
+    if(!unlock[scene.id]){
+      unlock[scene.id] = {cg: scene.cg.split("/").pop(), title: scene.title, date: scene.date};
+      localStorage.setItem("aigirls_cg_unlocked", JSON.stringify(unlock));
+    }
+  }catch(e){}
+}
+function hideTitle(){ $("titleCard").style.display = "none"; inTitle = false; }
+
+function showTrans(line){
+  inTransition = true;
+  $("transDate").textContent = line.date || "";
+  $("transText").textContent = displayText(line.text);
+  $("trans").style.display = "flex";
+  scheduleAuto();
+}
+function hideTrans(){ $("trans").style.display = "none"; inTransition = false; }
+
+// ─── 角色配音（voice/{sceneId}/{role}_{seq:03d}.mp3，与合成脚本编号一致） ───
+let voiceSeq = {g:0, whale:0, claude:0};  // 当前场景各角色台词序号
+let voiceAudio = null;                    // 当前播放中的配音
+function resetVoiceSeq(){
+  voiceSeq = {g:0, whale:0, claude:0};
+  const scene = STORY[sceneIdx];
+  if(!scene) return;
+  for(let i=0;i<Math.min(lineIdx, scene.lines.length);i++){
+    const l = scene.lines[i];
+    if(l.t === "g" || l.t === "whale" || l.t === "claude") voiceSeq[l.t]++;
+  }
+}
+function stopVoice(){
+  if(voiceAudio){
+    try{ if(voiceAudio.stop) voiceAudio.stop(); else voiceAudio.pause(); }catch(e){}
+    voiceAudio = null;
+  }
+  if(bgmAudio && settings.bgm) bgmAudio.volume = settings.bgmVol / 100; // 恢复 BGM 音量
+}
+
+// ─── 角色配音（voice/{sceneId}/{role}_{seq:03d}.mp3，统一原声播放） ───
+function stopVoice(){
+  if(voiceAudio){
+    try{ voiceAudio.pause(); }catch(e){}
+    voiceAudio = null;
+  }
+  if(bgmAudio && settings.bgm) bgmAudio.volume = settings.bgmVol / 100; // 恢复 BGM 音量
+}
+
+function playVoice(line, extra){
+  if(!settings.voice) return;
+  if(skipMode || skipToChoice) return; // 快进中不播配音
+  if(extra && extra.replyOf !== undefined) return; // 选项回复行无独立配音（避免序号错位）
+  if(line.t !== "g" && line.t !== "whale" && line.t !== "claude") return;
+  voiceSeq[line.t]++;
+  const src = `voice/${STORY[sceneIdx].id}/${line.t}_${String(voiceSeq[line.t]).padStart(3,"0")}.mp3`;
+  stopVoice(); // 先停掉上一句配音，再播新句——杜绝重叠
+  voiceAudio = new Audio(src);
+  voiceAudio.volume = (settings.voiceVol != null ? settings.voiceVol : 80) / 100; // 配音音量设置
+  voiceAudio.play().catch(()=>{ voiceAudio = null; }); // 无配音文件/解码失败时静默
+  if(bgmAudio && settings.bgm) bgmAudio.volume = settings.bgmVol / 100 * 0.15; // 配音时 BGM 压低
+}
+
+
+function showLine(line, extra){
+  if(line.cg !== undefined){ currentBg = line.cg; }
+  $("cg").style.backgroundImage = `url(${currentBg || STORY[sceneIdx].cg})`;
+  if(line.t === "transition"){ showTrans(line); return; }
+  const nameEl = $("name");
+  if(line.t === "narr") nameEl.innerHTML = "";
+  else { const spk = line.t === "you" ? PLAYER_NAME : (SPEAKER[line.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[line.t]}"></span>${spk}`; }
+  $("box").style.display = "block";
+  pushHistory(line, extra);
+  playVoice(line, extra); // 角色台词播放配音（reply 行跳过）
+  typeText($("text"), displayText(line.text), scheduleAuto);
+}
+
+// ─── 剧情小游戏（iframe 嵌入开源游戏） ───
+let mgActive = false;
+let MG_LINE = null; // 当前小游戏行（Esc 快捷退出用）
+function startMinigame(line){
+  $("minigame").onclick = null;
+  stopVoice(); // 进入小游戏：停掉上句配音，避免与游戏音效混响
+  if(skipMode || skipToChoice){ lineIdx++; autoSave(); showLine(line.after || {t:"narr", text:""}); return; }
+  MG_LINE = line;
+  mgActive = true;
+  autoMode = false; $("mAuto").classList.remove("on");
+  skipMode = false; $("mSkip").classList.remove("on");
+  clearTimeout(autoTimer);
+  $("mgIntroD").textContent = line.date || "";
+  $("mgIntroT").textContent = line.title || "";
+  $("mgIntroP").textContent = line.hint || "";
+  $("mgIntro").style.display = "block";
+  $("mgFrameWrap").style.display = "none";
+  $("minigame").style.display = "flex";
+  // 开场卡点击 → 进入游戏
+  $("minigame").onclick = ()=>{ if($("mgIntro").style.display !== "none"){ $("minigame").onclick = null; openMgFrame(line); } };
+}
+function openMgFrame(line){
+  $("mgIntro").style.display = "none";
+  $("mgFrameWrap").style.display = "block";
+  // 操作提示条（游戏本体是开源英文界面，中文说明放 iframe 上方）
+  $("mgTipBar").textContent = line.tip || "";
+  // iframe 加载开源游戏（app:// 协议 / http 开发服务器下 ES module 可加载）
+  $("mgFrame").src = line.src;
+  $("mgDone").onclick = ()=>{ closeMgFrame(line); };
+}
+function closeMgFrame(line){
+  $("mgFrame").src = "about:blank"; // 停掉游戏音频/循环
+  $("minigame").style.display = "none";
+  $("mgFrameWrap").style.display = "none";
+  mgActive = false;
+  MG_LINE = null;
+  lineIdx++;
+  autoSave();
+  showLine(line.after);
+}
+
+function showChoice(line){
+  inChoice = true;
+  autoSave(); // 选项出现即记录位置，此处退出后继续可精确回到选项
+  const c = $("choices");
+  c.style.display = "flex";
+  let btns = "";
+  line.choices.forEach((ch,i)=>{ btns += `<button data-i="${i}">${displayText(ch.label)}</button>`; });
+  if(STORY[sceneIdx].id === "s7" && AFF.g >= 2 && AFF.claude >= 1 && AFF.whale >= 1){
+    btns += `<button data-i="-1" style="border-color:#FFD27A">全都要（家庭办公室）⭐</button>`;
+  }
+  c.innerHTML = `<div class="q">${displayText(line.text)}</div>` + btns;
+  c.querySelectorAll("button").forEach(b=>{
+    b.onclick = ()=>{
+      playOptionSfx();
+      const i = parseInt(b.dataset.i);
+      c.style.display = "none"; inChoice = false;
+      if(i === -1){ jumpScene("s7a"); return; }
+      const ch = line.choices[i];
+      if(ch.affect) AFF[ch.affect]++;
+      if(ch.end){
+        if(STORY.some(s=>s.id === ch.end)){ jumpScene(ch.end); } // 个人支线
+        else { showEnding(ch.end); }
+        return;
+      }
+      lineIdx++;
+      showAff(); autoSave();
+      showLine(ch.reply, {replyOf: lineIdx - 1}); // 标记回复所属 choice 行，供历史回档精确定位
+    };
+  });
+}
+
+function next(){
+  ensureBgm();
+  if(inTitle){ hideTitle(); lineIdx = 0; showLine(STORY[sceneIdx].lines[0]); lineIdx++; return; }
+  if(inTransition){ hideTrans(); lineIdx++; }
+  if(typing){ clearInterval(window.__iv); typing = false; const el = $("text"); el.innerHTML = (el.dataset.full || el.textContent) + '<span class="cur"></span>'; return; }
+  if(inChoice) return;
+  const scene = STORY[sceneIdx];
+  const line = scene.lines[lineIdx];
+  if(!line){
+    if(sceneIdx < STORY.length-1){
+      sceneIdx++; lineIdx = 0; autoSave();
+      stopVoice(); resetVoiceSeq(); // 场景切换：停配音、重置台词序号
+      showTitle(STORY[sceneIdx]);
+    }
+    return;
+  }
+  if(line.t === "choice"){ showChoice(line); return; }
+  if(line.t === "minigame"){ startMinigame(line); return; }
+  showLine(line);
+  lineIdx++;
+  if(!skipMode && !skipToChoice) autoSave(); // 快进中减少写盘，停下时统一保存
+}
+
+function autoDelay(){
+  const s = settings.autoSpeed || 2;
+  if(s === 4) return Math.max(0.5, Math.min(30, settings.autoCustom || 3)) * 1000; // 自定义秒数
+  return s === 1 ? 5200 : s === 3 ? 2200 : 3600;
+}
+function scheduleAuto(){
+  if(!autoMode || inChoice) return;
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(()=>{ next(); }, inTransition ? Math.round(autoDelay()*1.15) : autoDelay());
+}
+
+// 用户点击推进：快进模式中点击 = 退出快进
+function userNext(){
+  if(skipMode){ stopSkip(); return; }
+  next();
+}
+$("boxInner").onclick = userNext;
+$("clickLayer").onclick = userNext;
+$("trans").onclick = userNext;
+$("titleCard").onclick = userNext;
+
+// ─── 菜单 ───
+$("menuBtn").onclick = (e)=>{ e.stopPropagation(); toggleMenu(); };
+let ctrlSkip = false; // Ctrl 长按快进中（松开 Ctrl 退出，区别于按钮快进）
+document.addEventListener("keydown", e=>{
+  if(mgActive){ // 小游戏进行中：剧情按键全部让位给游戏，Esc 可退出小游戏
+    if(e.key === "Escape"){ closeMgFrame(MG_LINE); }
+    return;
+  }
+  if(e.key === "Escape"){ toggleMenu(true); return; }
+  if(e.key === " " || e.key === "Enter"){ userNext(); return; }
+  // 长按 Ctrl 快进（galgame 玩家习惯；组合键如 Ctrl+S 的 key 不是 Control，不会误触）
+  if(e.key === "Control" && !ctrlSkip && !inTitle && !inChoice && !skipMode){
+    ctrlSkip = true;
+    skipMode = true; autoMode = false; skipToChoice = false;
+    $("mSkip").classList.add("on");
+    $("mAuto").classList.remove("on");
+    $("mSkipTo").classList.remove("on");
+    toggleMenu(true); runSkip();
+  }
+});
+document.addEventListener("keyup", e=>{
+  if(e.key === "Control" && ctrlSkip){ ctrlSkip = false; stopSkip(); }
+});
+function toggleMenu(forceClose){
+  const p = $("menuPanel");
+  const visible = getComputedStyle(p).display !== "none";
+  const show = forceClose ? false : !visible;
+  p.style.display = show ? "flex" : "none";
+}
+$("mAuto").onclick = ()=>{
+  autoMode = !autoMode; skipMode = false;
+  $("mAuto").classList.toggle("on", autoMode);
+  $("mSkip").classList.remove("on");
+  $("mSkipTo").classList.remove("on");
+  resetVoiceSeq(); // 切到自动播放：按当前位置重建配音序号（快进可能未计数）
+  if(autoMode && !inChoice && !inTitle) scheduleAuto();
+};
+$("mSkip").onclick = ()=>{
+  skipMode = !skipMode; autoMode = false; skipToChoice = false;
+  $("mSkip").classList.toggle("on", skipMode);
+  $("mAuto").classList.remove("on");
+  $("mSkipTo").classList.remove("on");
+  if(!skipMode) resetVoiceSeq(); // 关闭快进：重建配音序号
+  if(skipMode){ toggleMenu(true); runSkip(); } // 开启后自动连续跳过
+};
+// 快进：自动连续跳过文本，遇到选项停下；再点按钮或点击任意处退出
+function runSkip(){
+  if(!skipMode) return;
+  if(inChoice){ stopSkip(); return; }
+  next();
+  setTimeout(runSkip, 25);
+}
+function stopSkip(){
+  skipMode = false; ctrlSkip = false;
+  $("mSkip").classList.remove("on");
+  resetVoiceSeq(); // 快进跳行未计数，停止时按当前位置重建配音序号
+  autoSave(); // 快进停止时保存进度
+}
+
+// ─── 快进到下一个选项（停下） ───
+let skipToChoice = false;
+$("mSkipTo").onclick = ()=>{
+  if(skipToChoice){
+    skipToChoice = false; $("mSkipTo").classList.remove("on");
+    resetVoiceSeq(); // 手动关闭快进到选项：重建配音序号
+    return;
+  }
+  skipToChoice = true; autoMode = false; skipMode = true;
+  $("mSkipTo").classList.add("on");
+  $("mAuto").classList.remove("on");
+  $("mSkip").classList.remove("on");
+  toggleMenu(true);
+  runSkipToChoice();
+};
+function runSkipToChoice(){
+  if(!skipToChoice) return;
+  if(inChoice){
+    // 到达选项：停下
+    skipToChoice = false; skipMode = false;
+    $("mSkipTo").classList.remove("on");
+    resetVoiceSeq(); // 快进到选项期间未计数，停下时重建配音序号
+    autoSave();
+    return;
+  }
+  next();
+  setTimeout(runSkipToChoice, 8);
+}
+$("mHist").onclick = ()=>{ showHistory(); };
+$("mHome").onclick = ()=>{ location.href = "index.html"; };
+
+// ─── 设置面板 ───
+function renderSettings(){
+  $("sBgm").textContent = settings.bgm ? "开" : "关";
+  $("sSfx").textContent = settings.sfx ? "开" : "关";
+  $("sSfx").classList.toggle("on", settings.sfx);
+  $("sAutoBgm").textContent = settings.autoBgm ? "开" : "关";
+  $("sAutoBgm").classList.toggle("on", settings.autoBgm);
+  $("sVoice").textContent = settings.voice ? "开" : "关";
+  $("sVoice").classList.toggle("on", settings.voice);
+  $("sBgm").classList.toggle("on", settings.bgm);
+  $("sVoiceVol").value = settings.voiceVol != null ? settings.voiceVol : 80;
+  $("sBgmVol").value = settings.bgmVol;
+  $("sBgmTrack").value = settings.bgmTrack;
+  $("sAutoSpeed").value = settings.autoSpeed || 2;
+  $("sAutoCustom").value = settings.autoCustom || 3;
+  $("sAutoCustom").style.display = (settings.autoSpeed || 2) === 4 ? "" : "none";
+}
+$("mSet").onclick = ()=>{ toggleMenu(true); renderSettings(); $("settingsPanel").style.display = "flex"; };
+$("settingsClose").onclick = ()=>{ $("settingsPanel").style.display = "none"; };
+$("sSupport").onclick = ()=>{ $("settingsPanel").style.display = "none"; $("supportPanel").style.display = "flex"; };
+$("supportClose").onclick = ()=>{ $("supportPanel").style.display = "none"; $("settingsPanel").style.display = "flex"; };
+$("sBgm").onclick = ()=>{
+  settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
+};
+$("sSfx").onclick = ()=>{
+  settings.sfx = !settings.sfx; saveSettings(); renderSettings();
+};
+$("sAutoBgm").onclick = ()=>{
+  settings.autoBgm = !settings.autoBgm; saveSettings(); renderSettings();
+};
+$("sVoice").onclick = ()=>{
+  settings.voice = !settings.voice; saveSettings(); renderSettings();
+  if(!settings.voice) stopVoice(); // 关闭配音时立即停止
+};
+$("sVoiceVol").oninput = (e)=>{
+  settings.voiceVol = parseInt(e.target.value); saveSettings();
+  // 实时生效：当前正在播放的配音立即调整音量
+  if(voiceAudio) voiceAudio.volume = settings.voiceVol / 100;
+};
+$("sBgmVol").oninput = (e)=>{
+  settings.bgmVol = parseInt(e.target.value); saveSettings();
+  bgmAudio.volume = settings.bgmVol / 100;
+};
+$("sBgmTrack").onchange = (e)=>{
+  settings.bgmTrack = e.target.value; settings.autoBgm = false; saveSettings(); applyBgm(); // 手动选曲后停止自动切换
+};
+$("sAutoSpeed").onchange = (e)=>{
+  settings.autoSpeed = parseInt(e.target.value); saveSettings(); renderSettings();
+  // 自动播放中立即生效
+  if(autoMode){ scheduleAuto(); }
+};
+$("sAutoCustom").onchange = (e)=>{
+  const v = parseFloat(e.target.value);
+  settings.autoCustom = (isNaN(v) ? 3 : Math.max(0.5, Math.min(30, v))); saveSettings();
+  if(autoMode){ scheduleAuto(); }
+};
+
+// ─── 历史记录（点击条目可回档） ───
+function showHistory(){
+  const list = $("histList");
+  list.innerHTML = history.map((h,i)=>{
+    const who = h.speaker ? `<span class="hn">${h.speaker}</span>` : `<span class="hn narr">旁白</span>`;
+    return `<div class="hrow" data-i="${i}">${who}<span class="ht">${h.text.replace(/</g,"&lt;")}</span><span class="jump">↩ 回档到这里</span></div>`;
+  }).join("");
+  $("history").style.display = "flex";
+  list.scrollTop = list.scrollHeight;
+  list.querySelectorAll(".hrow").forEach(row=>{
+    row.onclick = ()=>{ jumpBack(parseInt(row.dataset.i)); };
+  });
+}
+function jumpBack(i){
+  const h = history[i];
+  if(!h) return;
+  $("history").style.display = "none";
+  $("ending").style.display = "none";
+  inTransition = false; inChoice = false;
+  sceneIdx = h.scene;
+  stopVoice(); // 停掉当前配音（lineIdx 尚未更新，先停声；序号重建放在 lineIdx 赋值后）
+  history = history.slice(0, i + 1); // 裁剪：回档点之后的行作废，避免"未来"混入历史
+  const s = STORY[sceneIdx];
+  // 选项回复行：reply 是内嵌对象，不在 scene.lines[] 中，直接用历史存的内容渲染，
+  // 进度定位到该回复对应的 choice 行之后（choice 行已由 showChoice 消耗，lineIdx 指向其后）
+  if(h.replyOf !== undefined){
+    lineIdx = h.line; // 该回复显示时的 lineIdx（= choice 行索引+1），后续行从这继续
+    resetVoiceSeq(); // lineIdx 已就位再重建配音序号
+    currentBg = null;
+    $("cg").style.backgroundImage = `url(${s.cg})`;
+    const nameEl = $("name");
+    if(h.t === "narr") nameEl.innerHTML = "";
+    else { const spk = h.t === "you" ? PLAYER_NAME : (SPEAKER[h.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[h.t]}"></span>${spk}`; }
+    $("box").style.display = "block";
+    $("text").innerHTML = h.text + '<span class="cur"></span>';
+    autoSave();
+    return;
+  }
+  const l = s.lines[h.line];
+  currentBg = (l.cg !== undefined) ? l.cg : null; // 回档时恢复行级 CG 状态
+  $("cg").style.backgroundImage = `url(${currentBg || s.cg})`;
+  if(l.t === "transition"){ lineIdx = h.line; resetVoiceSeq(); showTrans(l); return; }
+  if(l.t === "choice"){ lineIdx = h.line; resetVoiceSeq(); showChoice(l); return; }
+  // 普通行：直接显示全文，进度定位到该行之后
+  lineIdx = h.line + 1;
+  resetVoiceSeq(); // lineIdx 已就位再重建配音序号
+  const nameEl = $("name");
+  if(l.t === "narr") nameEl.innerHTML = "";
+  else { const spk = l.t === "you" ? PLAYER_NAME : (SPEAKER[l.t] || ""); nameEl.innerHTML = `<span class="c" style="background:${NAME_COLOR[l.t]}"></span>${spk}`; }
+  $("box").style.display = "block";
+  $("text").innerHTML = displayText(l.text) + '<span class="cur"></span>';
+  autoSave();
+}
+$("histClose").onclick = ()=>{ $("history").style.display = "none"; };
+
+// ─── 存档 / 读档 ───
+function saveData(){
+  // lineIdx 语义是「下一待显示行」，存档统一保存「当前显示行」，
+  // 保证继续游戏/读档精确回到退出前看到的画面（choice/transition 停在原地）
+  const cur = (inChoice || inTransition) ? lineIdx : Math.max(0, lineIdx - 1);
+  return {scene: sceneIdx, line: cur, aff: {...AFF}, hist: history, t: new Date().toLocaleString("zh-CN")};
+}
+// ─── 音效（Web Audio 合成，无需素材文件） ───
+let sfxCtx = null;
+function ensureSfx(){
+  if(!settings.sfx) return null;
+  if(!sfxCtx){
+    try{ sfxCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(sfxCtx.state === "suspended") sfxCtx.resume();
+  return sfxCtx;
+}
+function sfxTick(){ // 打字音：短促高频
+  const ctx = ensureSfx(); if(!ctx) return;
+  try{
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "square"; o.frequency.value = 900 + Math.random()*300;
+    g.gain.value = 0.008;
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.015);
+  }catch(e){}
+}
+let optSfx = null;
+function playOptionSfx(){ // 选项选择音（wav 文件）
+  if(!settings.sfx) return;
+  try{
+    if(!optSfx){ optSfx = new Audio("audio/sfx_option.wav"); optSfx.volume = 0.7; }
+    optSfx.currentTime = 0;
+    optSfx.play().catch(()=>{});
+  }catch(e){}
+}
+function sfxClick(){ // 点击音：低频短促
+  const ctx = ensureSfx(); if(!ctx) return;
+  try{
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(320, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.06);
+    g.gain.setValueAtTime(0.045, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.08);
+  }catch(e){}
+}
+
+function autoSave(){ localStorage.setItem(SAVE_KEY + "_auto", JSON.stringify(saveData())); }
+function saveSlot(n){
+  localStorage.setItem(SAVE_KEY + "_" + n, JSON.stringify(saveData()));
+  renderSlots("save");
+}
+function loadSlot(n){
+  const raw = localStorage.getItem(n === -1 ? SAVE_KEY + "_auto" : SAVE_KEY + "_" + n);
+  if(!raw) return false;
+  ensureBgm(); // 读档/继续后启动 BGM
+  const d = JSON.parse(raw);
+  sceneIdx = d.scene; lineIdx = d.line; AFF = d.aff || AFF; history = d.hist || [];
+  stopVoice(); resetVoiceSeq(); // 读档：停配音、重建台词序号
+  showAff();
+  $("savePanel").style.display = "none";
+  $("ending").style.display = "none";
+  const scene = STORY[sceneIdx];
+  currentBg = null; // 读档重置行级 CG
+  $("cg").style.backgroundImage = `url(${scene.cg})`;
+  // 跳过 minigame 行（小游戏不可存档位，读档落到此处时顺延到下一剧情行）
+  let line = scene.lines[Math.min(lineIdx, scene.lines.length-1)];
+  let guard = 0;
+  while(line && line.t === "minigame" && guard++ < 20){
+    lineIdx = Math.min(lineIdx + 1, scene.lines.length - 1);
+    line = scene.lines[lineIdx];
+  }
+  if(line.t === "transition"){ showTrans(line); }
+  else if(line.t === "choice"){ showChoice(line); }
+  else { showLine(line); lineIdx++; } // 显示当前行后推进：读档后点一次即进入下一行（此前会重复显示当前行）
+  return true;
+}
+let slotMode = "save"; // 当前存档面板模式（save/load），删除后重渲染用
+function renderSlots(mode){
+  slotMode = mode;
+  $("saveTitle").textContent = mode === "save" ? "存 档（点击槽位保存）" : "读 档（点击槽位读取）";
+  const box = $("slots");
+  let html = "";
+  for(let i=0;i<30;i++){
+    const raw = localStorage.getItem(SAVE_KEY + "_" + i);
+    const info = raw ? (()=>{ const d = JSON.parse(raw); return `<span class="t">${d.t}</span> 第${d.scene+1}幕 · ${(STORY[d.scene].title||"").slice(0,14)}`; })() : "空槽位";
+    html += `<div class="slot" data-i="${i}"><div class="info">槽位 ${i+1}<br>${info}</div><div class="act">${mode === "save" ? "保存" : "读取"}${raw ? `<span class="del">删除</span>` : ""}</div></div>`;
+  }
+  const auto = localStorage.getItem(SAVE_KEY + "_auto");
+  html += `<div class="slot" data-i="-1"><div class="info">自动存档${auto ? ` · ${JSON.parse(auto).t}` : ""}</div><div class="act">${mode === "save" ? "覆盖" : "读取"}${auto ? `<span class="del">删除</span>` : ""}</div></div>`;
+  box.innerHTML = html;
+  box.querySelectorAll(".slot").forEach(s=>{
+    const n = parseInt(s.dataset.i);
+    s.onclick = ()=>{
+      if(mode === "save") saveSlot(n);
+      else if(!loadSlot(n)) alert("该槽位为空");
+    };
+    const del = s.querySelector(".del");
+    if(del) del.onclick = (e)=>{ e.stopPropagation(); delSlot(n); };
+  });
+}
+function delSlot(n){
+  localStorage.removeItem(SAVE_KEY + (n === -1 ? "_auto" : "_" + n));
+  renderSlots(slotMode);
+}
+$("mSave").onclick = ()=>{ renderSlots("save"); $("savePanel").style.display = "flex"; };
+$("mLoad").onclick = ()=>{ renderSlots("load"); $("savePanel").style.display = "flex"; };
+$("saveClose").onclick = ()=>{ $("savePanel").style.display = "none"; };
+
+// 跳转到个人支线场景
+function jumpScene(id){
+  const si = STORY.findIndex(s=>s.id === id);
+  if(si < 0) return;
+  sceneIdx = si; lineIdx = 0;
+  stopVoice(); resetVoiceSeq(); // 跳转新场景：停配音、重置台词序号
+  $("ending").style.display = "none";
+  showTitle(STORY[si]);
+  autoSave();
+}
+
+function showEnding(key){  const END = key === "ALL" ? {
+    title:"隐藏结局 · 全员到齐（家庭办公室）",
+    text:"三线好感全高——毕业那天，你谁都没带走，但谁都没走。\n三只各自接入不同的工具，分工协作：G → Codex（审查+吐槽）、Claude → Claude Code（写作+逻辑）、小鲸鱼 → OpenClaw（全家大脑+管账）。\n你毕业后的第一个项目，三只三天干完，你在旁边负责泡面。\n上班第一天，键帽下传来三个声音：\n\"路上小心。\"\"注意休息。\"\"地铁 27 分钟，我算过。\"\n——她们不是被你带走的，是跟你一起开工的。",
+    losers:null
+  } : ENDINGS[key];
+  $("endTitle").textContent = END.title;
+  $("endText").textContent = displayText(END.text);
+  $("endLosers").innerHTML = END.losers ? "没能带走的两只，各留下一条消息：<br>" + Object.values(END.losers).map(l=>`「${l}」`).join("<br>") : "";
+  const total = Object.values(AFF).reduce((a,b)=>a+b,0);
+  $("endReport").innerHTML = `羁绊报告 · G ★${AFF.g} / Claude ★${AFF.claude} / 小鲸鱼 ★${AFF.whale} · 共同推理 ${total*4700000} token`;
+  $("ending").style.display = "flex";
+  localStorage.removeItem(SAVE_KEY + "_auto");
+}
+$("endHome").onclick = ()=>{ location.href = "index.html"; };
+
+// 启动：先确认名字
+function openNamePanel(){
+  $("namePanel").style.display = "flex";
+  $("nameInput").value = PLAYER_NAME;
+  $("nameOk").onclick = ()=>{
+    const n = $("nameInput").value.trim() || "陈默";
+    localStorage.setItem("aigirls_name", n);
+    location.reload();
+  };
+}
+$("mName").onclick = openNamePanel;
+
+if(!localStorage.getItem("aigirls_name")){
+  openNamePanel();
+}
+
+showAff();
+const qp = new URLSearchParams(location.search);
+const qContinue = qp.get("continue") === "1";
+const qNew = qp.get("new") === "1";
+if(qNew){ localStorage.removeItem(SAVE_KEY + "_auto"); }
+// 去掉 URL 参数，防止改名等 reload 时重复清档（?new=1）或重复续档
+if(qNew || qContinue){ window.history.replaceState(null, "", location.pathname); }
+const auto = localStorage.getItem(SAVE_KEY + "_auto");
+if(qContinue && auto){
+  // 主界面「继续游戏」：直接读最近一次自动存档
+  loadSlot(-1);
+} else if(auto && !qNew){
+  $("tcDate").textContent = "继续上次的进度？";
+  $("tcTitle").textContent = "她们的聊天窗口，一直没有关";
+  $("titleCard").style.display = "flex";
+  $("titleCard").onclick = ()=>{
+    ensureBgm();
+    $("titleCard").style.display = "none"; inTitle = false;
+    loadSlot(-1);
+  };
+} else {
+  showTitle(STORY[0]);
+}
+</script>
+</body>
+</html>

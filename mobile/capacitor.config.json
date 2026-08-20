@@ -1,0 +1,9 @@
+{
+  "appId": "com.aigirls.galgame",
+  "appName": "完蛋我被AI娘包围了",
+  "webDir": "www",
+  "backgroundColor": "#0b0b12",
+  "android": {
+    "allowMixedContent": true
+  }
+}
