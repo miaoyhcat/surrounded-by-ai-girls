@@ -76,16 +76,6 @@
   #setBox .row.other{flex-direction:column;align-items:flex-start;gap:8px}
   #setBox .row.other .txt{font-size:12px;line-height:1.9;color:#8B93A7;letter-spacing:.05em}
   #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
-  #supportPanel{position:fixed;inset:0;z-index:22;background:rgba(8,11,22,.96);display:none;flex-direction:column;align-items:center;justify-content:center;padding:4vh 5vw;overflow-y:auto}
-  #supportPanel h3{font-size:16px;letter-spacing:.5em;color:#FFB84D;margin-bottom:10px}
-  #supportPanel .slogan{font-size:12.5px;letter-spacing:.1em;color:#9AA3B8;line-height:2.1;text-align:center;margin-bottom:20px}
-  #supportPanel .slogan b{color:#EDF0F8}
-  #supportBox{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
-  #supportBox .pay{display:flex;flex-direction:column;align-items:center;gap:10px;background:#fff;border:1px solid rgba(28,35,51,.14);border-radius:14px;padding:16px 18px}
-  #supportBox .pay img{width:min(210px,42vw);height:auto;max-height:280px;border-radius:8px;object-fit:contain}
-  #supportBox .pay span{font-size:12.5px;letter-spacing:.3em;color:#1C2333}
-  #supportPanel .tip{font-size:11.5px;color:#7D86A0;letter-spacing:.06em;margin-top:16px;text-align:center;line-height:1.9}
-  #supportPanel .close{margin-top:22px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#1C2333;background:#F5F3EE;border:1px solid rgba(28,35,51,.2);border-radius:99px;padding:11px 36px;cursor:pointer}
 
   /* 矮屏适配（手机横屏） */
   @media (max-height: 560px){
@@ -102,16 +92,6 @@
     .nameRow button{padding:6px 14px;font-size:11px}
     .footer{display:none}
     .bgmBtn{bottom:8px;right:8px;padding:5px 12px;font-size:10.5px}
-    /* 矮屏（手机横屏）：赞赏面板紧凑布局，确保退出按钮可见 */
-    #supportPanel{padding:1.5vh 4vw;justify-content:flex-start}
-    #supportPanel h3{font-size:12.5px;margin-bottom:4px}
-    #supportPanel .slogan{font-size:10.5px;line-height:1.6;margin-bottom:6px}
-    #supportBox{gap:10px}
-    #supportBox .pay{padding:6px 10px;gap:4px}
-    #supportBox .pay img{width:min(110px,26vw);max-height:90px}
-    #supportBox .pay span{font-size:10.5px}
-    #supportPanel .tip{font-size:10px;margin-top:5px;line-height:1.6}
-    #supportPanel .close{margin-top:7px;padding:8px 24px;font-size:12px}
   }
 </style>
 </head>
@@ -182,29 +162,8 @@
         <span style="color:#FFD27A">我请你免费吃碗面。</span>
       </div>
     </div>
-    <div class="row supportRow" style="border-color:rgba(255,184,77,.45);background:rgba(255,184,77,.08)">
-      <label>为 爱 发 电<span class="sub" style="color:#FFB84D">本游戏免费开放 · 如果喜欢，欢迎支持一下</span></label>
-      <div class="ctl"><button class="toggle on" id="sSupport" style="background:#FFB84D;color:#1C2333;border-color:#FFB84D">支 持</button></div>
-    </div>
   </div>
   <button class="close" id="settingsClose">关 闭</button>
-</div>
-
-<!-- 为爱发电 · 赞赏 -->
-<div id="supportPanel">
-  <h3>为 爱 发 电</h3>
-  <div class="slogan">
-    本游戏为<b>为爱发电</b>，如果您愿意给游戏研发回血<br>
-    和给后续的 DLC 续命，可以点下面支持一下。<br><br>
-    游戏如果反响好的话，后面可能会出<b>其他的模型娘</b>，<br>
-    或者<b>增加现有模型娘的剧情</b>，还可能做<b>女性向的游戏</b>。
-  </div>
-  <div id="supportBox">
-    <div class="pay"><img src="assets/support_wechat.png" alt="微信赞赏码"><span>微 信</span></div>
-    <div class="pay"><img src="assets/support_alipay.png" alt="支付宝赞赏码"><span>支付宝</span></div>
-  </div>
-  <div class="tip">金额随意，心意无价 · 每一份支持都会变成新的剧情<br>也可以把游戏推荐给朋友，这也是很好的支持</div>
-  <button class="close" id="supportClose">收 起</button>
 </div>
 
 <script src="data.js"></script>
@@ -293,8 +252,6 @@
   }, {capture:true});
   document.getElementById('btnSettings').onclick = ()=>{ renderSettings(); document.getElementById('settingsPanel').style.display = 'flex'; };
   document.getElementById('settingsClose').onclick = ()=>{ document.getElementById('settingsPanel').style.display = 'none'; };
-  document.getElementById('sSupport').onclick = ()=>{ document.getElementById('settingsPanel').style.display = 'none'; document.getElementById('supportPanel').style.display = 'flex'; };
-  document.getElementById('supportClose').onclick = ()=>{ document.getElementById('supportPanel').style.display = 'none'; document.getElementById('settingsPanel').style.display = 'flex'; };
   document.getElementById('sBgm').onclick = ()=>{
     settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
   };
@@ -315,11 +272,10 @@
     if(!hallBgmStarted){ hallBgmStarted = true; }
     settings.bgm = !settings.bgm; saveSettings(); applyBgm();
   };
-  // Esc：逐层关闭大厅面板（赞赏 → 设置 → 相册）
+  // Esc：逐层关闭大厅面板（设置 → 相册）
   document.addEventListener("keydown", e=>{
     if(e.key !== "Escape") return;
-    const sup = document.getElementById('supportPanel'), set = document.getElementById('settingsPanel'), alb = document.getElementById('albumPanel');
-    if(sup.style.display === 'flex'){ sup.style.display = 'none'; set.style.display = 'flex'; return; }
+    const set = document.getElementById('settingsPanel'), alb = document.getElementById('albumPanel');
     if(set.style.display === 'flex'){ set.style.display = 'none'; return; }
     if(alb.style.display === 'flex'){ alb.style.display = 'none'; }
   });

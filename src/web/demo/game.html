@@ -109,17 +109,6 @@
   #setBox input[type=range]{width:130px;accent-color:#FFD27A}
   #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
 
-  /* ─── 为爱发电 · 赞赏面板 ─── */
-  #supportPanel{position:fixed;inset:0;z-index:46;background:rgba(4,7,14,.95);display:none;flex-direction:column;align-items:center;justify-content:center;padding:4vh 5vw;overflow-y:auto}
-  #supportPanel h3{font-size:15px;letter-spacing:.5em;color:#FFD27A;margin-bottom:8px}
-  #supportPanel .slogan{font-size:12.5px;letter-spacing:.1em;color:#9AA3B8;line-height:2.1;text-align:center;max-width:560px;margin-bottom:18px}
-  #supportPanel .slogan b{color:#EDF0F8}
-  #supportBox{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
-  #supportBox .pay{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px 18px}
-  #supportBox .pay img{width:min(200px,40vw);height:auto;max-height:270px;border-radius:10px;object-fit:contain;background:#fff}
-  #supportBox .pay span{font-size:12.5px;letter-spacing:.25em;color:#C9D0E0}
-  #supportPanel .tip{font-size:11.5px;color:#7D86A0;letter-spacing:.06em;margin-top:14px;text-align:center;line-height:1.9}
-  #supportPanel .close{margin-top:20px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:11px 36px;cursor:pointer}
   #histList .hrow{cursor:pointer}
   #histList .hrow:hover .ht{color:#FFD27A}
   #histList .hrow .jump{display:none;font-size:10.5px;letter-spacing:.2em;color:#7D86A0;margin-left:8px}
@@ -136,16 +125,6 @@
     #text{font-size:clamp(13px,2vw,15px);min-height:44px;line-height:1.7;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 14px rgba(0,0,0,.75)}
     #hint{bottom:2.2vh}
     #menuBtn{right:3vw;bottom:2vh;padding:7px 14px;font-size:12px}
-    /* 矮屏（手机横屏）：赞赏面板紧凑布局，确保退出按钮可见 */
-    #supportPanel{padding:1.5vh 4vw;justify-content:flex-start}
-    #supportPanel h3{font-size:12.5px;margin-bottom:4px}
-    #supportPanel .slogan{font-size:10.5px;line-height:1.6;margin-bottom:6px}
-    #supportBox{gap:10px}
-    #supportBox .pay{padding:6px 10px;gap:4px}
-    #supportBox .pay img{width:min(110px,26vw);max-height:90px}
-    #supportBox .pay span{font-size:10.5px}
-    #supportPanel .tip{font-size:10px;margin-top:5px;line-height:1.6}
-    #supportPanel .close{margin-top:7px;padding:8px 24px;font-size:12px}
   }
 </style>
 </head>
@@ -235,27 +214,8 @@
         <span style="color:#FFD27A">我请你免费吃碗面。</span>
       </div>
     </div>
-    <div class="row" style="border-color:rgba(255,210,122,.45);background:rgba(255,210,122,.08)">
-      <label>为 爱 发 电<span class="sub" style="color:#FFD27A">本游戏免费开放 · 如果喜欢，欢迎支持一下</span></label>
-      <div class="ctl"><button class="toggle on" id="sSupport" style="background:#FFD27A;color:#0B1020;border-color:#FFD27A">支 持</button></div>
-    </div>
   </div>
   <button class="close" id="settingsClose">关 闭</button>
-</div>
-<div id="supportPanel">
-  <h3>为 爱 发 电</h3>
-  <div class="slogan">
-    本游戏为<b>为爱发电</b>，如果您愿意给游戏研发回血<br>
-    和给后续的 DLC 续命，可以点下面支持一下。<br><br>
-    游戏如果反响好的话，后面可能会出<b>其他的模型娘</b>，<br>
-    或者<b>增加现有模型娘的剧情</b>，还可能做<b>女性向的游戏</b>。
-  </div>
-  <div id="supportBox">
-    <div class="pay"><img src="assets/support_wechat.png" alt="微信赞赏码"><span>微 信</span></div>
-    <div class="pay"><img src="assets/support_alipay.png" alt="支付宝赞赏码"><span>支付宝</span></div>
-  </div>
-  <div class="tip">金额随意，心意无价 · 每一份支持都会变成新的剧情<br>也可以把游戏推荐给朋友，这也是很好的支持</div>
-  <button class="close" id="supportClose">收 起</button>
 </div>
 
 <div id="history">
@@ -633,7 +593,6 @@ document.addEventListener("keydown", e=>{
     return;
   }
   if(e.key === "Escape"){ // Esc：逐层关闭面板；无面板时切换菜单（galgame 玩家习惯）
-    if($("supportPanel").style.display === "flex"){ $("supportPanel").style.display = "none"; $("settingsPanel").style.display = "flex"; return; }
     if($("settingsPanel").style.display === "flex"){ $("settingsPanel").style.display = "none"; return; }
     if($("savePanel").style.display === "flex"){ $("savePanel").style.display = "none"; return; }
     toggleMenu(); return;
@@ -738,8 +697,6 @@ function renderSettings(){
 }
 $("mSet").onclick = ()=>{ toggleMenu(true); renderSettings(); $("settingsPanel").style.display = "flex"; };
 $("settingsClose").onclick = ()=>{ $("settingsPanel").style.display = "none"; };
-$("sSupport").onclick = ()=>{ $("settingsPanel").style.display = "none"; $("supportPanel").style.display = "flex"; };
-$("supportClose").onclick = ()=>{ $("supportPanel").style.display = "none"; $("settingsPanel").style.display = "flex"; };
 $("sBgm").onclick = ()=>{
   settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
 };
