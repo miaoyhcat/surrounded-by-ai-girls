@@ -25,8 +25,8 @@
 ## 🖥️ 运行方式
 
 ### 直接玩（推荐）
-- **Windows**：下载 Release 中的 `完蛋我被AI娘包围了_Windows_v0.1.0_TapTap.zip`，解压后运行 `完蛋我被AI娘包围了.exe`
-- **Android**：下载 Release 中的 `完蛋我被AI娘包围了-安卓版-v0.1.0.apk` 直接安装（包名 `com.aigirls.galgame`）
+- **Windows**：下载 [Release](https://github.com/miaoyhcat/surrounded-by-ai-girls/releases) 中的 `AI-Girls-Windows-v0.1.0.zip`，解压后运行 `完蛋我被AI娘包围了.exe`
+- **Android**：下载 [Release](https://github.com/miaoyhcat/surrounded-by-ai-girls/releases) 中的 `AI-Girls-Android-v0.1.0.apk` 直接安装（包名 `com.aigirls.galgame`，横屏）
 
 ### 从源码运行（网页版）
 ```bash
