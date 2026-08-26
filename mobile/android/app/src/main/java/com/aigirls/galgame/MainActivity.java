@@ -14,7 +14,8 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 沉浸式全屏：隐藏状态栏 + 导航栏（游戏画面占满整块屏幕）
-        getWindow().setDecorFitsSystemWindows(false);
+        // 用 WindowCompat 兼容写法（setDecorFitsSystemWindows 是 API 30+ 方法，直接调用在安卓 10 及以下会 NoSuchMethodError 闪退）
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         if (controller != null) {
             controller.hide(WindowInsetsCompat.Type.systemBars());

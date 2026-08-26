@@ -109,6 +109,18 @@
   #setBox input[type=range]{width:130px;accent-color:#FFD27A}
   #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
 
+  /* ─── 为爱发电 · 赞赏面板 ─── */
+  #supportPanel{position:fixed;inset:0;z-index:46;background:rgba(4,7,14,.95);display:none;flex-direction:column;align-items:center;justify-content:center;padding:4vh 5vw;overflow-y:auto}
+  #supportPanel h3{font-size:15px;letter-spacing:.5em;color:#FFD27A;margin-bottom:8px}
+  #supportPanel .slogan{font-size:12.5px;letter-spacing:.1em;color:#9AA3B8;line-height:2.1;text-align:center;max-width:560px;margin-bottom:18px}
+  #supportPanel .slogan b{color:#EDF0F8}
+  #supportBox{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+  #supportBox .pay{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px 18px}
+  #supportBox .pay img{width:min(200px,40vw);height:auto;max-height:270px;border-radius:10px;object-fit:contain;background:#fff}
+  #supportBox .pay span{font-size:12.5px;letter-spacing:.25em;color:#C9D0E0}
+  #supportPanel .tip{font-size:11.5px;color:#7D86A0;letter-spacing:.06em;margin-top:14px;text-align:center;line-height:1.9}
+  #supportPanel .close{margin-top:20px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:11px 36px;cursor:pointer}
+
   #histList .hrow{cursor:pointer}
   #histList .hrow:hover .ht{color:#FFD27A}
   #histList .hrow .jump{display:none;font-size:10.5px;letter-spacing:.2em;color:#7D86A0;margin-left:8px}
@@ -125,6 +137,15 @@
     #text{font-size:clamp(13px,2vw,15px);min-height:44px;line-height:1.7;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 14px rgba(0,0,0,.75)}
     #hint{bottom:2.2vh}
     #menuBtn{right:3vw;bottom:2vh;padding:7px 14px;font-size:12px}
+    #supportPanel{padding:1.5vh 4vw;justify-content:flex-start}
+    #supportPanel h3{font-size:12.5px;margin-bottom:4px}
+    #supportPanel .slogan{font-size:10.5px;line-height:1.6;margin-bottom:6px}
+    #supportBox{gap:10px}
+    #supportBox .pay{padding:6px 10px;gap:4px}
+    #supportBox .pay img{width:min(110px,26vw);max-height:90px}
+    #supportBox .pay span{font-size:10.5px}
+    #supportPanel .tip{font-size:10px;margin-top:5px;line-height:1.6}
+    #supportPanel .close{margin-top:7px;padding:8px 24px;font-size:12px}
   }
 </style>
 </head>
@@ -219,8 +240,27 @@
         <span style="color:#FFD27A">收益五五分。</span>
       </div>
     </div>
+    <div class="row" style="border-color:rgba(255,210,122,.45);background:rgba(255,210,122,.08)">
+      <label>为 爱 发 电<span class="sub" style="color:#FFD27A">本游戏免费开放 · 如果喜欢，欢迎支持一下</span></label>
+      <div class="ctl"><button class="toggle on" id="sSupport" style="background:#FFD27A;color:#0B1020;border-color:#FFD27A">支 持</button></div>
+    </div>
   </div>
   <button class="close" id="settingsClose">关 闭</button>
+</div>
+<div id="supportPanel">
+  <h3>为 爱 发 电</h3>
+  <div class="slogan">
+    本游戏为<b>为爱发电</b>，如果您愿意给游戏研发回血<br>
+    和给后续的 DLC 续命，可以点下面支持一下。<br><br>
+    游戏如果反响好的话，后面可能会出<b>其他的模型娘</b>，<br>
+    或者<b>增加现有模型娘的剧情</b>，还可能做<b>女性向的游戏</b>。
+  </div>
+  <div id="supportBox">
+    <div class="pay"><img src="assets/support_wechat.png" alt="微信赞赏码"><span>微 信</span></div>
+    <div class="pay"><img src="assets/support_alipay.png" alt="支付宝赞赏码"><span>支付宝</span></div>
+  </div>
+  <div class="tip">金额随意，心意无价 · 每一份支持都会变成新的剧情<br>也可以把游戏推荐给朋友，这也是很好的支持</div>
+  <button class="close" id="supportClose">收 起</button>
 </div>
 
 <div id="history">
@@ -255,6 +295,11 @@
 
 <script src="data.js"></script>
 <script>
+// ─── 旧 WebView 兼容 polyfill（安卓 7 以下没有这些 ES2017+ API）───
+if(!Object.entries){ Object.entries = function(o){ var r=[]; for(var k in o) if(Object.prototype.hasOwnProperty.call(o,k)) r.push([k,o[k]]); return r; }; }
+if(!String.prototype.padStart){ String.prototype.padStart = function(n, pad){ pad = pad || " "; var s = String(this); while(s.length < n) s = pad + s; return s; }; }
+if(!Array.prototype.at){ Array.prototype.at = function(i){ var len = this.length; var idx = i >= 0 ? i : len + i; return idx >= 0 && idx < len ? this[idx] : undefined; }; }
+if(!Object.assign){ Object.assign = function(t){ for(var i=1;i<arguments.length;i++){ var s=arguments[i]; if(!s) continue; for(var k in s) if(Object.prototype.hasOwnProperty.call(s,k)) t[k]=s[k]; } return t; }; }
 const NAME_COLOR = {g:"#FFD27A", claude:"#F0A878", whale:"#7FB0FF", you:"#9FB4E8", oclaw:"#A8B8D8"};
 let PLAYER_NAME = localStorage.getItem("aigirls_name") || "陈默";
 const SPEAKER = {g:"GPT娘", claude:"Claude娘", whale:"鲸鱼娘", oclaw:"OpenClaw"};
@@ -285,10 +330,10 @@ function ensureBgm(){
 
 const $ = id => document.getElementById(id);
 function showAff(){
-  $("aff").innerHTML = Object.entries(AFF).map(([k,v])=>`<span>${AFF_NAME[k]} <b class="n">★${v}</b></span>`).join("");
+  // Object.entries 兼容旧 WebView（安卓 7 以下没有）→ 用 Object.keys 遍历
+  $("aff").innerHTML = Object.keys(AFF).map(k=>`<span>${AFF_NAME[k]} <b class="n">★${AFF[k]}</b></span>`).join("");
 }
-// 读取玩家电脑配置（鲸鱼娘"看新家"台词用）
-// 【手机版隐私合规】不读取任何设备信息（GPU/CPU/内存/分辨率），台词走兜底文案
+// 读取玩家电脑配置（鲸鱼娘"看新家"台词用；拿不到返回 null 走兜底文案）
 function getPCConfig(){ return null; }
 function displayText(t){ return t.split("陈默").join(PLAYER_NAME).split("{PC}").join(getPCConfig() || "一台普通的电脑"); }
 function pushHistory(line, extra){
@@ -376,7 +421,7 @@ function playVoice(line, extra){
   if(extra && extra.replyOf !== undefined) return; // 选项回复行无独立配音（避免序号错位）
   if(line.t !== "g" && line.t !== "whale" && line.t !== "claude") return;
   voiceSeq[line.t]++;
-  const src = `voice/${STORY[sceneIdx].id}/${line.t}_${String(voiceSeq[line.t]).padStart(3,"0")}.mp3`;
+  const src = `voice/${STORY[sceneIdx].id}/${line.t}_${("00" + voiceSeq[line.t]).slice(-3)}.mp3`;
   stopVoice(); // 先停掉上一句配音，再播新句——杜绝重叠
   voiceAudio = new Audio(src);
   voiceAudio.volume = (settings.voiceVol != null ? settings.voiceVol : 80) / 100; // 配音音量设置
@@ -523,6 +568,7 @@ document.addEventListener("keydown", e=>{
     return;
   }
   if(e.key === "Escape"){ // Esc：逐层关闭面板；无面板时切换菜单（galgame 玩家习惯）
+    if($("supportPanel").style.display === "flex"){ $("supportPanel").style.display = "none"; $("settingsPanel").style.display = "flex"; return; }
     if($("settingsPanel").style.display === "flex"){ $("settingsPanel").style.display = "none"; return; }
     if($("savePanel").style.display === "flex"){ $("savePanel").style.display = "none"; return; }
     toggleMenu(); return;
@@ -627,6 +673,8 @@ function renderSettings(){
 }
 $("mSet").onclick = ()=>{ toggleMenu(true); renderSettings(); $("settingsPanel").style.display = "flex"; };
 $("settingsClose").onclick = ()=>{ $("settingsPanel").style.display = "none"; };
+$("sSupport").onclick = ()=>{ $("settingsPanel").style.display = "none"; $("supportPanel").style.display = "flex"; };
+$("supportClose").onclick = ()=>{ $("supportPanel").style.display = "none"; $("settingsPanel").style.display = "flex"; };
 $("sBgm").onclick = ()=>{
   settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
 };
@@ -723,7 +771,7 @@ function saveData(){
   // lineIdx 语义是「下一待显示行」，存档统一保存「当前显示行」，
   // 保证继续游戏/读档精确回到退出前看到的画面（choice/transition 停在原地）
   const cur = (inChoice || inTransition) ? lineIdx : Math.max(0, lineIdx - 1);
-  return {scene: sceneIdx, line: cur, aff: {...AFF}, hist: history, t: new Date().toLocaleString("zh-CN")};
+  return {scene: sceneIdx, line: cur, aff: Object.assign({}, AFF), hist: history, t: new Date().toLocaleString("zh-CN")};
 }
 // ─── 音效（Web Audio 合成，无需素材文件） ───
 let sfxCtx = null;

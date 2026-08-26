@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>完蛋，我被AI娘包围了 · Demo</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{
     font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
     color:#1C2333;overflow:hidden;user-select:none;background-color:#F5F3EE;
@@ -44,10 +44,11 @@
   /* 回忆相册 */
   #albumPanel{position:fixed;inset:0;z-index:20;background:rgba(8,11,22,.96);display:none;flex-direction:column;padding:4vh 5vw}
   #albumPanel h3{font-size:15px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:20px;text-align:center}
-  #albumGrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;max-width:1100px;width:100%;margin:0 auto;padding:4px}
-  #albumGrid .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .18s ease}
+  #albumGrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));grid-auto-rows:max-content;align-content:start;gap:18px;max-width:1100px;width:100%;margin:0 auto;padding:4px}
+  #albumGrid .card{min-height:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .18s ease}
   #albumGrid .card:hover{transform:translateY(-3px);border-color:rgba(255,210,122,.5)}
-  #albumGrid .card img{width:100%;height:150px;object-fit:cover;display:block}
+  #albumGrid .card .thumb{width:100%;aspect-ratio:16/9;overflow:hidden;position:relative;background:#0B1020}
+  #albumGrid .card .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
   #albumGrid .card .info{padding:10px 14px}
   #albumGrid .card .info .t{font-size:13px;color:#D5DBEA;letter-spacing:.08em}
   #albumGrid .card .info .d{font-size:10.5px;color:#7D86A0;letter-spacing:.12em;margin-top:4px}
@@ -63,7 +64,7 @@
   /* 设置面板 */
   #settingsPanel{position:fixed;inset:0;z-index:21;background:rgba(8,11,22,.96);display:none;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw}
   #settingsPanel h3{font-size:14px;letter-spacing:.4em;color:#9AA3B8;margin-bottom:24px}
-  #setBox{display:flex;flex-direction:column;gap:16px;width:min(480px,88vw)}
+  #setBox{display:flex;flex-direction:column;gap:16px;width:min(480px,88vw);max-height:74vh;overflow-y:auto;padding-right:8px}
   #setBox .row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:14px 18px}
   #setBox .row label{font-size:13.5px;letter-spacing:.12em;color:#C9D0E0}
   #setBox .row label .sub{display:block;font-size:11px;color:#7D86A0;letter-spacing:.08em;margin-top:4px}
@@ -75,6 +76,23 @@
   #setBox .row.other{flex-direction:column;align-items:flex-start;gap:8px}
   #setBox .row.other .txt{font-size:12px;line-height:1.9;color:#8B93A7;letter-spacing:.05em}
   #settingsPanel .close{margin-top:24px;font-family:inherit;font-size:13px;letter-spacing:.3em;color:#EDF0F8;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:12px 40px;cursor:pointer}
+
+  /* 矮屏适配（手机横屏） */
+  @media (max-height: 560px){
+    .panel{top:3vh;transform:none;gap:7px;width:min(300px,38vw)}
+    .hallbg{background-position:78% center;background-size:auto 130%}
+    .kicker{font-size:9px;padding:4px 12px}
+    h1{font-size:clamp(18px,2.6vw,26px)}
+    h1 .en{font-size:8.5px;margin-top:3px}
+    .menu{gap:5px;margin-top:3px}
+    .menu button{padding:7px 14px;font-size:12.5px}
+    .menu button .en{font-size:8px;margin-top:2px}
+    .nameRow{margin-top:2px}
+    .nameRow input{padding:6px 10px;width:110px;font-size:12px}
+    .nameRow button{padding:6px 14px;font-size:11px}
+    .footer{display:none}
+    .bgmBtn{bottom:8px;right:8px;padding:5px 12px;font-size:10.5px}
+  }
 </style>
 </head>
 <body>
@@ -116,6 +134,8 @@
   <h3>设 置</h3>
   <div id="setBox">
     <div class="row"><label>背景音乐<span class="sub">温柔钢琴曲 · 循环播放</span></label><div class="ctl"><button class="toggle" id="sBgm">开</button></div></div>
+    <div class="row"><label>音 效<span class="sub">打字/点击反馈音</span></label><div class="ctl"><button class="toggle" id="sSfx">开</button></div></div>
+    <div class="row"><label>配音音量<span class="sub">角色台词音量</span></label><div class="ctl"><input type="range" id="sVoiceVol" min="0" max="100" value="80"></div></div>
     <div class="row"><label>音乐音量</label><div class="ctl"><input type="range" id="sBgmVol" min="0" max="100" value="35"></div></div>
     <div class="row"><label>切换曲目</label><div class="ctl"><select id="sBgmTrack">
       <option value="acoustic54">曲目 Ⅰ · 温馨木吉他</option>
@@ -126,26 +146,25 @@
     <div class="row other"><label>感 谢 名 单</label>
       <div class="txt">
         倾情指导：<span style="color:#FFD27A">世界欠我一缕晨曦</span><br>
-        感谢测试：<span style="color:#FFD27A">剑与兔 ｜ 坦克300车主王小平 ｜ 无憾 ｜ 半字 ｜ 莫名 ｜ link ｜ 0402 ｜ 浮士德猫猫TV</span>
+        友情赞助：<span style="color:#FFD27A">一叶知秋</span><br>
+        感谢测试：<span style="color:#FFD27A">剑与兔 ｜ 坦克300车主王小平 ｜ 无憾 ｜ 半字 ｜ 莫名 ｜ link ｜ 0402 ｜ 杀戮猿乐 ｜ 提灯思旧念 ｜ 浮士德猫猫TV</span>
       </div>
     </div>
-    <div class="row other"><label>其 他</label>
+    <div class="row other"><label>关 于 版 权</label>
       <div class="txt">
-        谨以此游戏献给所有 AI 使用者。<br>
-        非常感谢所有计算机从业人员——没有你们，就没有这个伟大的产物。<br>
-        你们所有人的努力与贡献，带动了整个人类的发展。<br><br>
-        本游戏角色形象来自各大 AI 的网友整活娘化 Q 版，<br>
-        也欢迎大家多去使用这些大厂的 AI 模型，接触前沿生产力：<br>
-        <a href="https://chatgpt.com" target="_blank" style="color:#7FB0FF">OpenAI · chatgpt.com</a> ｜
-        <a href="https://www.deepseek.com" target="_blank" style="color:#7FB0FF">DeepSeek · deepseek.com</a> ｜
-        <a href="https://claude.ai" target="_blank" style="color:#7FB0FF">Anthropic · claude.ai</a><br><br>
-        其他素材大部分取材于网络。能联系的创作者均已联系；<br>
-        部分素材创作者实在找不到联系方式——如果你的素材被引用，<br>
-        可以联系我，我可提供几十元补偿（在校生没多少钱，<br>
-        做游戏也产生了消耗，请见谅）。<br><br>
-        有任何问题或想法建议也可以联系我：<br>
-        <span style="color:#FFD27A">vx: miao48075490</span> ｜ <span style="color:#FFD27A">q: 3277681859</span><br>
-        （开学后可能会有点忙，但每一条我都会认真看）
+        本游戏由一位<span style="color:#FFB84D">高中生独立研发</span>，<br>
+        从 CG、配音、剧情到前后端，都由一人完成。<br><br>
+        本游戏所用素材都来自网络和各大开源项目，<br>
+        如有侵权或不对的地方请联系我，我会光速整改。<br><br>
+        如果你有什么好的想法、问题或者建议，也可以来联系我：<br>
+        <span style="color:#FFD27A">vx: miao48075490</span> ｜ <span style="color:#FFD27A">q: 3277681859</span><br><br>
+        还有——如果哪天吃不上饭了，也可以来找我，<br>
+        <span style="color:#FFD27A">我请你免费吃碗面。</span><br><br>
+        另外，如果你想定制一款属于自己的 galgame——<br>
+        剧本、配音、开发，都可以找我聊聊，<br>
+        <span style="color:#FFD27A">从零到一，帮你把故事做成游戏。</span><br><br>
+        如果定制的 galgame 选择买断制上架，<br>
+        <span style="color:#FFD27A">收益五五分。</span>
       </div>
     </div>
   </div>
@@ -192,7 +211,9 @@
     STORY.forEach(s=>{
       const u = unlock[s.id];
       if(u){
-        html += `<div class="card" data-cg="${u.cg}" data-t="${s.title}" data-d="${s.date}"><img src="assets/${u.cg}" alt=""><div class="info"><div class="t">${s.title}</div><div class="d">${s.date}</div></div></div>`;
+        // 兼容旧存档脏数据：cg 无效时回退到场景定义的 CG
+        const cg = (u.cg && /^[a-zA-Z0-9_]+\.(png|jpg)$/.test(u.cg)) ? u.cg : (s.cg ? s.cg.split('/').pop() : '');
+        html += `<div class="card" data-cg="${cg}" data-t="${s.title}" data-d="${s.date}"><div class="thumb"><img src="assets/${cg}" alt=""></div><div class="info"><div class="t">${s.title}</div><div class="d">${s.date}</div></div></div>`;
       } else {
         html += `<div class="card locked">尚未解锁</div>`;
       }
@@ -209,7 +230,7 @@
 
   // ─── 设置 ───
   const SET_KEY = 'aigirls_settings';
-  const settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:'acoustic54'}, JSON.parse(localStorage.getItem(SET_KEY)||'{}'));
+  const settings = Object.assign({bgm:true, bgmVol:35, bgmTrack:'acoustic54', sfx:true, voiceVol:80}, JSON.parse(localStorage.getItem(SET_KEY)||'{}'));
   function saveSettings(){ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }
   let hallBgm = new Audio(), hallBgmStarted = false;
   function applyBgm(){
@@ -223,6 +244,9 @@
   function renderSettings(){
     document.getElementById('sBgm').textContent = settings.bgm ? '开' : '关';
     document.getElementById('sBgm').classList.toggle('on', settings.bgm);
+    document.getElementById('sSfx').textContent = settings.sfx ? '开' : '关';
+    document.getElementById('sSfx').classList.toggle('on', settings.sfx);
+    document.getElementById('sVoiceVol').value = settings.voiceVol != null ? settings.voiceVol : 80;
     document.getElementById('sBgmVol').value = settings.bgmVol;
     document.getElementById('sBgmTrack').value = settings.bgmTrack;
   }
@@ -236,9 +260,15 @@
   document.getElementById('sBgm').onclick = ()=>{
     settings.bgm = !settings.bgm; saveSettings(); renderSettings(); applyBgm();
   };
+  document.getElementById('sSfx').onclick = ()=>{
+    settings.sfx = !settings.sfx; saveSettings(); renderSettings();
+  };
   document.getElementById('sBgmVol').oninput = (e)=>{
     settings.bgmVol = parseInt(e.target.value); saveSettings();
     hallBgm.volume = settings.bgmVol / 100;
+  };
+  document.getElementById('sVoiceVol').oninput = (e)=>{
+    settings.voiceVol = parseInt(e.target.value); saveSettings();
   };
   document.getElementById('sBgmTrack').onchange = (e)=>{
     settings.bgmTrack = e.target.value; saveSettings(); applyBgm();
@@ -247,6 +277,13 @@
     if(!hallBgmStarted){ hallBgmStarted = true; }
     settings.bgm = !settings.bgm; saveSettings(); applyBgm();
   };
+  // Esc：逐层关闭大厅面板（设置 → 相册）
+  document.addEventListener("keydown", e=>{
+    if(e.key !== "Escape") return;
+    const set = document.getElementById('settingsPanel'), alb = document.getElementById('albumPanel');
+    if(set.style.display === 'flex'){ set.style.display = 'none'; return; }
+    if(alb.style.display === 'flex'){ alb.style.display = 'none'; }
+  });
 </script>
 </body>
 </html>
