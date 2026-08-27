@@ -1,5 +1,6 @@
 package com.aigirls.galgame;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -20,6 +21,12 @@ public class MainActivity extends BridgeActivity {
         if (controller != null) {
             controller.hide(WindowInsetsCompat.Type.systemBars());
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+        // 刘海屏/挖孔屏：内容延伸到凹口区域（解决横屏时左右/上下的黑边）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(lp);
         }
         // 保持屏幕常亮（游玩时不熄屏）
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
