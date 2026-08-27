@@ -9,14 +9,14 @@
   body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden;user-select:none;background:#0B1020;color:#EDF0F8}
   #stage{position:fixed;inset:0}
   #clickLayer{position:fixed;inset:0;z-index:10;cursor:pointer}
-  #cg{position:absolute;inset:0;background:center/contain no-repeat;transition:opacity .3s;background-color:#0B1020}
+  #cg{position:absolute;inset:0;background:center/cover no-repeat;transition:opacity .3s;background-color:#0B1020}
   /* 顶部 */
   #top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;pointer-events:none}
   #sceneInfo{font-size:12px;letter-spacing:.14em;color:#9AA3B8;background:rgba(10,14,28,.7);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:7px 16px;backdrop-filter:blur(4px)}
   #aff{display:flex;gap:10px;font-size:12px;letter-spacing:.06em}
   #aff span{background:rgba(10,14,28,.75);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:7px 14px;backdrop-filter:blur(4px)}
   #aff .n{color:#FFD27A}
-  #menuBtn{position:fixed;right:4vw;bottom:2.5vh;z-index:22;pointer-events:auto;font-family:inherit;font-size:13px;letter-spacing:.2em;color:#EDF0F8;background:rgba(10,14,28,.8);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 18px;cursor:pointer;backdrop-filter:blur(4px)}
+  #menuBtn{position:fixed;left:4vw;top:2.5vh;z-index:22;pointer-events:auto;font-family:inherit;font-size:13px;letter-spacing:.2em;color:#EDF0F8;background:rgba(10,14,28,.8);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 18px;cursor:pointer;backdrop-filter:blur(4px)}
   #menuBtn:hover{border-color:#FFD27A}
   /* 对话框 */
   #box{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:0 4vw 3.5vh}
@@ -137,7 +137,7 @@
     #name{font-size:12px;margin-bottom:3px;text-shadow:0 1px 3px rgba(0,0,0,.95)}
     #text{font-size:clamp(13px,2vw,15px);min-height:44px;line-height:1.7;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 14px rgba(0,0,0,.75)}
     #hint{bottom:2.2vh}
-    #menuBtn{right:3vw;bottom:2vh;padding:7px 14px;font-size:12px}
+    #menuBtn{left:3vw;top:2vh;padding:7px 14px;font-size:12px}
     #supportPanel{padding:1.5vh 4vw;justify-content:flex-start}
     #supportPanel h3{font-size:12.5px;margin-bottom:4px}
     #supportPanel .slogan{font-size:10.5px;line-height:1.6;margin-bottom:6px}
